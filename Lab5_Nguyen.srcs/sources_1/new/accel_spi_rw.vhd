@@ -105,6 +105,7 @@ begin
                     next_Moore_state_commandFSM <= writeAddr2D;
                 end if;
              when writeAddr2D =>
+                SPIStart <= '0';
                 if (SPIdone = '1') then
                     next_Moore_state_commandFSM <= doneStartup;
                 else
@@ -112,13 +113,10 @@ begin
                 end if;
              when doneStartup =>
                 SPIStart <= '1';
-                toSPIbytes <= x"0B0000";
-                if (SPIdone = '1') then
-                    next_Moore_state_commandFSM <= captureID_AD;
-                else
-                    next_Moore_state_commandFSM <= readAddr00;
-                end if;
+                toSPIbytes <= x"0B0000";             
+                next_Moore_state_commandFSM <= readAddr00;
              when readAddr00 =>
+                SPIStart <= '0';
                 if (SPIdone = '1') then
                     next_Moore_state_commandFSM <= captureID_AD;
                 else
@@ -126,13 +124,10 @@ begin
                 end if;
               when captureID_AD =>
                 SPIStart <= '1';
-                toSPIbytes <= x"0B0100";
-                if (SPIdone = '1') then
-                    next_Moore_state_commandFSM <= captureID_1D;
-                else
-                    next_Moore_state_commandFSM <= readAddr01;
-                end if;
+                toSPIbytes <= x"0B0100";                
+                next_Moore_state_commandFSM <= readAddr01;
               when readAddr01 =>
+                SPIStart <= '0';
                 if (SPIdone = '1') then
                     next_Moore_state_commandFSM <= captureID_1D;
                 else
@@ -140,13 +135,10 @@ begin
                 end if;
             when captureID_1D =>
                 SPIStart <= '1';
-                toSPIbytes <= x"0B0800";
-                if (SPIdone = '1') then
-                    next_Moore_state_commandFSM <= captureX;
-                else
-                    next_Moore_state_commandFSM <= readAddr08;
-                end if;
+                toSPIbytes <= x"0B0800";           
+                next_Moore_state_commandFSM <= readAddr08;
            when readAddr08 =>
+                SPIStart <= '0';
                 if (SPIdone = '1') then
                     next_Moore_state_commandFSM <= captureX;
                 else
@@ -155,12 +147,9 @@ begin
             when captureX =>
                 SPIStart <= '1';
                 toSPIbytes <= x"0B0900";
-                if (SPIdone = '1') then
-                    next_Moore_state_commandFSM <= captureY;
-                else
-                    next_Moore_state_commandFSM <= readAddr09;
-                end if;
+                next_Moore_state_commandFSM <= readAddr09;
             when readAddr09 =>
+                SPIStart <= '0';
                 if (SPIdone = '1') then
                     next_Moore_state_commandFSM <= captureY;
                 else
@@ -169,12 +158,9 @@ begin
             when captureY =>
                 SPIStart <= '1';
                 toSPIbytes <= x"0B0A00";
-                if (SPIdone = '1') then
-                    next_Moore_state_commandFSM <= captureZ;
-                else
-                    next_Moore_state_commandFSM <= readAddr0A;
-                end if;
+                next_Moore_state_commandFSM <= readAddr0A;
             when readAddr0A =>
+                SPIStart <= '0';
                 if (SPIdone = '1') then
                     next_Moore_state_commandFSM <= captureZ;
                 else
@@ -183,11 +169,7 @@ begin
             when captureZ =>
                 SPIStart <= '1';
                 toSPIbytes <= x"0B0000";
-                if (SPIdone = '1') then
-                    next_Moore_state_commandFSM <= captureID_AD;
-                else
-                    next_Moore_state_commandFSM <= readAddr00;
-                end if;            
+                next_Moore_state_commandFSM <= readAddr00;
         end case;     
         
     end process CommandFSMState;
@@ -255,7 +237,7 @@ begin
                 timerStart <= '1';
                 timerMax <= to_unsigned(49,20);
                 Csb <= '1';
-                sclkCntr <= to_unsigned(0,5); -- reset sclkCntr when SPI FMS is done
+                
                 SPIdone <= '1';
                 if timerDone = '1' and SPIdone = '1' then   --- timerDone goes high and SPIdone signal goes high
                     next_Moore_state_spiFSM <= idle;
@@ -308,11 +290,16 @@ begin
      if(reset = '1') then
           sclkCntr <= (others => '0');
      elsif(rising_edge(clk)) then
-        --if (Pulse1MHz = '1') then                   
-            sclkCntr <= sclkCntr + 1;             -- increase the sclkCntr everytime 1MHz pulse is high
-        --end if;
+           if  (Moore_state_spiFSM = wait100ms)  then-- reset sclkCntr when SPI FMS is done
+                sclkCntr <= to_unsigned(0,5);
+            elsif (Pulse1MHz = '1') then       
+                sclkCntr <= sclkCntr + 1;             -- increase the sclkCntr everytime 1MHz pulse is high
+            else
+                sclkCntr <= sclkCntr;
+            end if;        
      end if;   
  end process sclkCounter;
+
  
  -----------------------------------------------------
  --- Parallel-To-Serial -----
@@ -323,15 +310,13 @@ begin
         sig24bitMosi <= (others => '0');
       elsif(rising_edge(clk)) then
         if(SPIstart = '1') then                 -- load toSPIbytes into a 24-bit shift reguster when SPIstart pulses high
-            sig24bitMosi <= toSPIbytes;
-                if (Moore_state_spiFSM = sclkHi and timerDone = '1') then   -- when the spiFSM is in state sclkHi and timerDone goes hight
-                   sig24bitMosi <= sig24bitMosi (sig24bitMosi'left-1 downto 0) & '0';      -- cycling shift the 24-bit shift register one bit to the left             
-                else
-                     sig24bitMosi <= sig24bitMosi;
-                end if;
+            sig24bitMosi <= toSPIbytes;          
+        elsif (Moore_state_spiFSM = sclkHi and timerDone = '1') then   -- when the spiFSM is in state sclkHi and timerDone goes hight
+           sig24bitMosi <= sig24bitMosi (sig24bitMosi'left-1 downto 0) & '0';      -- cycling shift the 24-bit shift register one bit to the left             
         else
-            sig24bitMosi <= (others => '0');
+             sig24bitMosi <= sig24bitMosi;
         end if;
+        
       end if;
  end process parallelToSerial;
  MOSI <= sig24bitMosi(23);          -- the MSB of the 24-bit shift register becomes the MOSI output
@@ -342,24 +327,29 @@ begin
  serialToParallel: process(reset, clk)
  begin
      if(reset = '1') then
-        sig24bitMosi <= (others => '0');
+        sig24bitMiso <= (others => '0');
+        dataAD <= (others => '0');
+        dataID <= (others => '0');
+        dataX <= (others => '0');
+        dataY <= (others => '0');
+        dataZ <= (others => '0');
       elsif(rising_edge(clk)) then
         if (Moore_state_spiFSM = checkSclkCntr and sclkCntr < 24 ) then --
-            sig24bitMosi(0) <= MISO;  -- shift in the MISO signal into the LSB of the register when SPI FSM is in the checkSclkCntr
+            sig24bitMiso <= sig24bitMiso (sig24bitMiso'left-1 downto 0) & MISO;  -- shift in the MISO signal into the LSB of the register when SPI FSM is in the checkSclkCntr
             if(Moore_state_commandFSM = captureID_AD) then
-                dataAD <= sig24bitMosi(7 downto 0);
+                dataAD <= sig24bitMiso(7 downto 0);
             elsif (Moore_state_commandFSM = captureID_1D) then
-                dataID <= sig24bitMosi(7 downto 0);
+                dataID <= sig24bitMiso(7 downto 0);
             elsif (Moore_state_commandFSM = captureX) then
-                dataX <= sig24bitMosi(7 downto 0);
+                dataX <= sig24bitMiso(7 downto 0);
             elsif (Moore_state_commandFSM = captureY) then
-                dataY <= sig24bitMosi(7 downto 0);
+                dataY <= sig24bitMiso(7 downto 0);
             elsif (Moore_state_commandFSM = captureZ) then
-                dataZ <= sig24bitMosi(7 downto 0);
+                dataZ <= sig24bitMiso(7 downto 0);
             else
             end if;
         else
-            sig24bitMosi <= (others => '0');
+            sig24bitMiso <= sig24bitMiso;
         end if;
      end if;
  end process serialToParallel;
