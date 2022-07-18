@@ -32,7 +32,13 @@ Port (
           
            --Seg7 Display Signals
            SEG7_CATH : out STD_LOGIC_VECTOR (7 downto 0);
-           AN : out STD_LOGIC_VECTOR (7 downto 0)
+           AN : out STD_LOGIC_VECTOR (7 downto 0);
+           
+           -- SPI 
+           ACL_MISO: in STD_LOGIC;
+           ACL_MOSI: out STD_LOGIC;
+           ACL_SCLK: out STD_LOGIC;
+           ACL_CSN: out STD_LOGIC
            );
 end lab5_top;
 
@@ -78,6 +84,13 @@ architecture Behavioral of lab5_top is
     signal btnRight_db_prev: std_logic; -- button up debounce is one clock cycle delayed
     signal btnRight_press_event: std_logic; 
 
+
+  signal DATA_X:  std_logic_vector(7 downto 0); 
+  signal DATA_Y :  std_logic_vector(7 downto 0); 
+  signal DATA_Z :  std_logic_vector(7 downto 0); 
+  signal ID_AD :  std_logic_vector(7 downto 0); 
+  signal ID_1D :  std_logic_vector(7 downto 0); 
+
 begin
  -- switch 0 is reset
    reset <= SW(0);     
@@ -103,6 +116,26 @@ begin
            vcnt => vcnt
          );
         
+        
+     ------------------------------------------------------------------------------------           
+     ------------------------------------- SPI ACEL -------------------------------------   
+     ------------------------------------------------------------------------------------ 
+     
+     accel_spi: entity work.accel_spi_rw port map
+     (
+        clk => CLK100MHZ, 
+        reset => reset, 
+      DATA_X => DATA_X, 
+      DATA_Y => DATA_Y,
+      DATA_Z => DATA_Z,
+      ID_AD => ID_AD,
+      ID_1D => ID_1D,
+      CSb => ACL_CSN,
+      MOSI => ACL_MOSI,
+      SCLK => ACL_SCLK, 
+      MISO => ACL_MISO 
+     );
+     
        
      -----------------------------------------------------------------------------------      
      -------------------------------------- BUTTONS ------------------------------------
