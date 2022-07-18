@@ -1,14 +1,15 @@
-
-*** Running vivado
-    with args -log accel_spi_rw.vds -m64 -product Vivado -mode batch -messageDb vivado.pb -notrace -source accel_spi_rw.tcl
-
-
-
-****** Vivado v2022.1 (64-bit)
-  **** SW Build 3526262 on Mon Apr 18 15:48:16 MDT 2022
-  **** IP Build 3524634 on Mon Apr 18 20:55:01 MDT 2022
-    ** Copyright 1986-2022 Xilinx, Inc. All Rights Reserved.
-
+#-----------------------------------------------------------
+# Vivado v2022.1 (64-bit)
+# SW Build 3526262 on Mon Apr 18 15:48:16 MDT 2022
+# IP Build 3524634 on Mon Apr 18 20:55:01 MDT 2022
+# Start of session at: Mon Jul 18 14:43:00 2022
+# Process ID: 22356
+# Current directory: D:/JHU/FPGA/Lab/Lab5_Nguyen/Lab5_Nguyen.runs/synth_1
+# Command line: vivado.exe -log accel_spi_rw.vds -product Vivado -mode batch -messageDb vivado.pb -notrace -source accel_spi_rw.tcl
+# Log file: D:/JHU/FPGA/Lab/Lab5_Nguyen/Lab5_Nguyen.runs/synth_1/accel_spi_rw.vds
+# Journal file: D:/JHU/FPGA/Lab/Lab5_Nguyen/Lab5_Nguyen.runs/synth_1\vivado.jou
+# Running On: Thuong-Nguyen-PC, OS: Windows, CPU Frequency: 2592 MHz, CPU Physical cores: 6, Host memory: 17073 MB
+#-----------------------------------------------------------
 source accel_spi_rw.tcl -notrace
 create_project: Time (s): cpu = 00:00:03 ; elapsed = 00:00:08 . Memory (MB): peak = 1964.867 ; gain = 0.000
 Command: read_checkpoint -auto_incremental -incremental D:/JHU/FPGA/Lab/Lab5_Nguyen/Lab5_Nguyen.srcs/utils_1/imports/synth_1/vga.dcp

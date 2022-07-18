@@ -24,7 +24,7 @@ else
 fi
 export LD_LIBRARY_PATH
 
-HD_PWD='D:/JHU/FPGA/Lab/Lab5_Nguyen/Lab5_Nguyen.runs/synth_1'
+HD_PWD='D:/JHU/FPGA/Lab/Lab5_Nguyen/Lab5_Nguyen.runs/impl_1'
 cd "$HD_PWD"
 
 HD_LOG=runme.log
@@ -40,4 +40,8 @@ EAStep()
      fi
 }
 
-EAStep vivado -log accel_spi_rw.vds -m64 -product Vivado -mode batch -messageDb vivado.pb -notrace -source accel_spi_rw.tcl
+# pre-commands:
+/bin/touch .init_design.begin.rst
+EAStep vivado -log accel_spi_rw.vdi -applog -m64 -product Vivado -messageDb vivado.pb -mode batch -source accel_spi_rw.tcl -notrace
+
+

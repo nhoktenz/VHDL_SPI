@@ -2,12 +2,12 @@
 # Vivado v2022.1 (64-bit)
 # SW Build 3526262 on Mon Apr 18 15:48:16 MDT 2022
 # IP Build 3524634 on Mon Apr 18 20:55:01 MDT 2022
-# Start of session at: Mon Jul 18 03:58:29 2022
-# Process ID: 20264
+# Start of session at: Mon Jul 18 14:43:00 2022
+# Process ID: 22356
 # Current directory: D:/JHU/FPGA/Lab/Lab5_Nguyen/Lab5_Nguyen.runs/synth_1
-# Command line: vivado.exe -log accel_spi_rw_tb.vds -product Vivado -mode batch -messageDb vivado.pb -notrace -source accel_spi_rw_tb.tcl
-# Log file: D:/JHU/FPGA/Lab/Lab5_Nguyen/Lab5_Nguyen.runs/synth_1/accel_spi_rw_tb.vds
+# Command line: vivado.exe -log accel_spi_rw.vds -product Vivado -mode batch -messageDb vivado.pb -notrace -source accel_spi_rw.tcl
+# Log file: D:/JHU/FPGA/Lab/Lab5_Nguyen/Lab5_Nguyen.runs/synth_1/accel_spi_rw.vds
 # Journal file: D:/JHU/FPGA/Lab/Lab5_Nguyen/Lab5_Nguyen.runs/synth_1\vivado.jou
 # Running On: Thuong-Nguyen-PC, OS: Windows, CPU Frequency: 2592 MHz, CPU Physical cores: 6, Host memory: 17073 MB
 #-----------------------------------------------------------
-source accel_spi_rw_tb.tcl -notrace
+source accel_spi_rw.tcl -notrace

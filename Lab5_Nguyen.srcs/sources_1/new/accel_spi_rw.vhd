@@ -166,17 +166,18 @@ begin
              
    with Moore_state_commandFSM select
    toSPIbytes <= x"0A2D02" when idle,
-                 x"0A2D02" when writeAddr2D,
-                 x"0B0000" when doneStartup, 
-                 x"0B0000" when readAddr00, 
+                 --x"0B0000" when writeAddr2D,
+                 --x"0B0000" when doneStartup, 
+                 --x"0B0000" when readAddr00, 
                  x"0B0100" when captureID_AD,
-                 x"0B0100" when readAddr01,
+                 --x"0B0000" when readAddr01,
                  x"0B0800" when captureID_1D,
-                 x"0B0800" when readAddr08,
+                 --x"0B0000" when readAddr08,
                  x"0B0900" when captureX,
-                 x"0B0900" when readAddr09,
+                 --x"0B0000" when readAddr09,
                  x"0B0A00" when captureY,
-                 x"0B0A00" when readAddr0A,
+                 --x"0B0000" when readAddr0A,
+                 --x"0B0000" when captureZ,
                  x"0B0000" when others;
                          
  

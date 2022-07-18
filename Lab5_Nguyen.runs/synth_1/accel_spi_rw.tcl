@@ -4,7 +4,7 @@
 
 set TIME_start [clock seconds] 
 namespace eval ::optrace {
-  variable script "D:/JHU/FPGA/Lab/Lab5_Nguyen/Lab5_Nguyen.runs/synth_1/accel_spi_rw_tb.tcl"
+  variable script "D:/JHU/FPGA/Lab/Lab5_Nguyen/Lab5_Nguyen.runs/synth_1/accel_spi_rw.tcl"
   variable category "vivado_synth"
 }
 
@@ -86,12 +86,7 @@ set_property ip_output_repo d:/JHU/FPGA/Lab/Lab5_Nguyen/Lab5_Nguyen.cache/ip [cu
 set_property ip_cache_permissions {read write} [current_project]
 OPTRACE "Creating in-memory project" END { }
 OPTRACE "Adding files" START { }
-read_vhdl -library xil_defaultlib {
-  D:/JHU/FPGA/Lab/Lab5_Nguyen/Lab5_Nguyen.srcs/sources_1/new/pulseGenerator.vhd
-  D:/JHU/FPGA/Lab/Lab5_Nguyen/Lab5_Nguyen.srcs/sources_1/new/accel_spi_rw.vhd
-  D:/JHU/FPGA/Lab/Lab5_Nguyen/Lab5_Nguyen.srcs/sources_1/new/acl_model_v2.vhd
-  D:/JHU/FPGA/Lab/Lab5_Nguyen/Lab5_Nguyen.srcs/sources_1/new/accel_spi_rw_tb.vhd
-}
+read_vhdl -library xil_defaultlib D:/JHU/FPGA/Lab/Lab5_Nguyen/Lab5_Nguyen.srcs/sources_1/new/accel_spi_rw.vhd
 OPTRACE "Adding files" END { }
 # Mark all dcp files as not used in implementation to prevent them from being
 # stitched into the results of this synthesis run. Any black boxes in the
@@ -110,7 +105,7 @@ read_checkpoint -auto_incremental -incremental D:/JHU/FPGA/Lab/Lab5_Nguyen/Lab5_
 close [open __synthesis_is_running__ w]
 
 OPTRACE "synth_design" START { }
-synth_design -top accel_spi_rw_tb -part xc7a100tcsg324-1
+synth_design -top accel_spi_rw -part xc7a100tcsg324-1
 OPTRACE "synth_design" END { }
 if { [get_msg_config -count -severity {CRITICAL WARNING}] > 0 } {
  send_msg_id runtcl-6 info "Synthesis results are not added to the cache due to CRITICAL_WARNING"
@@ -120,10 +115,10 @@ if { [get_msg_config -count -severity {CRITICAL WARNING}] > 0 } {
 OPTRACE "write_checkpoint" START { CHECKPOINT }
 # disable binary constraint mode for synth run checkpoints
 set_param constraints.enableBinaryConstraints false
-write_checkpoint -force -noxdef accel_spi_rw_tb.dcp
+write_checkpoint -force -noxdef accel_spi_rw.dcp
 OPTRACE "write_checkpoint" END { }
 OPTRACE "synth reports" START { REPORT }
-create_report "synth_1_synth_report_utilization_0" "report_utilization -file accel_spi_rw_tb_utilization_synth.rpt -pb accel_spi_rw_tb_utilization_synth.pb"
+create_report "synth_1_synth_report_utilization_0" "report_utilization -file accel_spi_rw_utilization_synth.rpt -pb accel_spi_rw_utilization_synth.pb"
 OPTRACE "synth reports" END { }
 file delete __synthesis_is_running__
 close [open __synthesis_is_complete__ w]
