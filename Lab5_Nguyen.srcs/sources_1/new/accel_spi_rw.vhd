@@ -224,7 +224,7 @@ begin
              when setCShi => 
                     Moore_state_spiFSM <= wait100ms;
              when wait100ms =>
-                if timerDone = '1' and SPIdone='1' then   --- timerDone goes high and SPIdone signal goes high
+                if timerDone = '1' then   --- timerDone goes high and SPIdone signal goes high
                     Moore_state_spiFSM <= idle;
                 else
                     Moore_state_spiFSM <= wait100ms;
@@ -284,8 +284,8 @@ begin
  -----------------------------------------------------
  --------------------- SCLK Counter ------------------
  -----------------------------------------------------
- maxCounter1MHz <= "000000000000000000001100100";  -- binary value for 100 to make 1MHz pulse
- pulse_1MHz: entity work.pulseGenerator port map ( clk => clk, reset => reset, maxCount => MaxCounter1MHz, pulseOut => Pulse1MHz);
+ --maxCounter1MHz <= "000000000000000000001100100";  -- binary value for 100 to make 1MHz pulse
+ --pulse_1MHz: entity work.pulseGenerator port map ( clk => clk, reset => reset, maxCount => MaxCounter1MHz, pulseOut => Pulse1MHz);
  
  sclkCounter: process (reset, clk)
  begin
@@ -313,7 +313,7 @@ begin
         sig24bitMosi <= (others => '0');
       elsif(rising_edge(clk)) then
         if(SPIstart = '1') then                 -- load toSPIbytes into a 24-bit shift reguster when SPIstart pulses high
-            sig24bitMosi <= toSPIbytes;          
+            sig24bitMosi <= toSPIbytes;         
         elsif (Moore_state_spiFSM = sclkHi and timerDone = '1') then   -- when the spiFSM is in state sclkHi and timerDone goes hight
            sig24bitMosi <= sig24bitMosi (sig24bitMosi'left-1 downto 0) & '0';      -- cycling shift the 24-bit shift register one bit to the left             
         else
@@ -339,7 +339,12 @@ begin
       elsif(rising_edge(clk)) then
         if (Moore_state_spiFSM = checkSclkCntr and sclkCntr < 24 ) then --
             sig24bitMiso <= sig24bitMiso (sig24bitMiso'left-1 downto 0) & MISO;  -- shift in the MISO signal into the LSB of the register when SPI FSM is in the checkSclkCntr
-            if(Moore_state_commandFSM = captureID_AD) then
+            
+        else
+            sig24bitMiso <= sig24bitMiso;
+        end if;
+        
+        if(Moore_state_commandFSM = captureID_AD) then
                 dataAD <= sig24bitMiso(7 downto 0);
             elsif (Moore_state_commandFSM = captureID_1D) then
                 dataID <= sig24bitMiso(7 downto 0);
@@ -350,10 +355,12 @@ begin
             elsif (Moore_state_commandFSM = captureZ) then
                 dataZ <= sig24bitMiso(7 downto 0);
             else
+                dataAD <= dataAD;
+                dataID <= dataID; 
+                dataX <= dataX;
+                dataY <= dataY;
+                dataZ <= dataZ;
             end if;
-        else
-            sig24bitMiso <= sig24bitMiso;
-        end if;
      end if;
  end process serialToParallel;
  

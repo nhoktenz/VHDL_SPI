@@ -1,0 +1,238 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<wave_config>
+   <wave_state>
+   </wave_state>
+   <db_ref_list>
+      <db_ref path="accel_spi_rw_tb_behav.wdb" id="1">
+         <top_modules>
+            <top_module name="accel_spi_rw_tb" />
+         </top_modules>
+      </db_ref>
+   </db_ref_list>
+   <zoom_setting>
+      <ZoomStartTime time="31,344,716.666 ns"></ZoomStartTime>
+      <ZoomEndTime time="31,345,968.667 ns"></ZoomEndTime>
+      <Cursor1Time time="31,345,760.000 ns"></Cursor1Time>
+   </zoom_setting>
+   <column_width_setting>
+      <NameColumnWidth column_width="219"></NameColumnWidth>
+      <ValueColumnWidth column_width="105"></ValueColumnWidth>
+   </column_width_setting>
+   <WVObjectSize size="54" />
+   <wvobject fp_name="/accel_spi_rw_tb/reset" type="logic">
+      <obj_property name="ElementShortName">reset</obj_property>
+      <obj_property name="ObjectShortName">reset</obj_property>
+   </wvobject>
+   <wvobject fp_name="/accel_spi_rw_tb/ACL_CSN" type="logic">
+      <obj_property name="ElementShortName">ACL_CSN</obj_property>
+      <obj_property name="ObjectShortName">ACL_CSN</obj_property>
+   </wvobject>
+   <wvobject fp_name="/accel_spi_rw_tb/ACL_SCLK" type="logic">
+      <obj_property name="ElementShortName">ACL_SCLK</obj_property>
+      <obj_property name="ObjectShortName">ACL_SCLK</obj_property>
+   </wvobject>
+   <wvobject fp_name="/accel_spi_rw_tb/ACL_MOSI" type="logic">
+      <obj_property name="ElementShortName">ACL_MOSI</obj_property>
+      <obj_property name="ObjectShortName">ACL_MOSI</obj_property>
+   </wvobject>
+   <wvobject fp_name="/accel_spi_rw_tb/ACL_MISO" type="logic">
+      <obj_property name="ElementShortName">ACL_MISO</obj_property>
+      <obj_property name="ObjectShortName">ACL_MISO</obj_property>
+   </wvobject>
+   <wvobject fp_name="/accel_spi_rw_tb/acl_enabled" type="logic">
+      <obj_property name="ElementShortName">acl_enabled</obj_property>
+      <obj_property name="ObjectShortName">acl_enabled</obj_property>
+   </wvobject>
+   <wvobject fp_name="/accel_spi_rw_tb/ID_AD" type="array">
+      <obj_property name="ElementShortName">ID_AD[7:0]</obj_property>
+      <obj_property name="ObjectShortName">ID_AD[7:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/accel_spi_rw_tb/ID_1D" type="array">
+      <obj_property name="ElementShortName">ID_1D[7:0]</obj_property>
+      <obj_property name="ObjectShortName">ID_1D[7:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/accel_spi_rw_tb/DATA_X" type="array">
+      <obj_property name="ElementShortName">DATA_X[7:0]</obj_property>
+      <obj_property name="ObjectShortName">DATA_X[7:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/accel_spi_rw_tb/DATA_Y" type="array">
+      <obj_property name="ElementShortName">DATA_Y[7:0]</obj_property>
+      <obj_property name="ObjectShortName">DATA_Y[7:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/accel_spi_rw_tb/DATA_Z" type="array">
+      <obj_property name="ElementShortName">DATA_Z[7:0]</obj_property>
+      <obj_property name="ObjectShortName">DATA_Z[7:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/accel_spi_rw_tb/ACL_DUMMY/acl_enabled" type="logic">
+      <obj_property name="ElementShortName">acl_enabled</obj_property>
+      <obj_property name="ObjectShortName">acl_enabled</obj_property>
+   </wvobject>
+   <wvobject fp_name="/accel_spi_rw_tb/ACL_DUMMY/rd_D" type="logic">
+      <obj_property name="ElementShortName">rd_D</obj_property>
+      <obj_property name="ObjectShortName">rd_D</obj_property>
+   </wvobject>
+   <wvobject fp_name="/accel_spi_rw_tb/ACL_DUMMY/rd_Q" type="logic">
+      <obj_property name="ElementShortName">rd_Q</obj_property>
+      <obj_property name="ObjectShortName">rd_Q</obj_property>
+   </wvobject>
+   <wvobject fp_name="/accel_spi_rw_tb/ACL_DUMMY/ctr_clr" type="logic">
+      <obj_property name="ElementShortName">ctr_clr</obj_property>
+      <obj_property name="ObjectShortName">ctr_clr</obj_property>
+   </wvobject>
+   <wvobject fp_name="/accel_spi_rw_tb/ACL_DUMMY/addr_Q" type="array">
+      <obj_property name="ElementShortName">addr_Q[7:0]</obj_property>
+      <obj_property name="ObjectShortName">addr_Q[7:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/accel_spi_rw_tb/ACL_DUMMY/addr_D" type="array">
+      <obj_property name="ElementShortName">addr_D[7:0]</obj_property>
+      <obj_property name="ObjectShortName">addr_D[7:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/accel_spi_rw_tb/ACEL_DUT/CSb" type="logic">
+      <obj_property name="ElementShortName">CSb</obj_property>
+      <obj_property name="ObjectShortName">CSb</obj_property>
+   </wvobject>
+   <wvobject fp_name="/accel_spi_rw_tb/ACL_DUMMY/reg_out_Q" type="array">
+      <obj_property name="ElementShortName">reg_out_Q[7:0]</obj_property>
+      <obj_property name="ObjectShortName">reg_out_Q[7:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/accel_spi_rw_tb/ACL_DUMMY/reg_read_Q" type="array">
+      <obj_property name="ElementShortName">reg_read_Q[7:0]</obj_property>
+      <obj_property name="ObjectShortName">reg_read_Q[7:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/accel_spi_rw_tb/ACL_DUMMY/i_acl_enabled" type="logic">
+      <obj_property name="ElementShortName">i_acl_enabled</obj_property>
+      <obj_property name="ObjectShortName">i_acl_enabled</obj_property>
+   </wvobject>
+   <wvobject fp_name="/accel_spi_rw_tb/ACL_DUMMY/reg_out_D" type="array">
+      <obj_property name="ElementShortName">reg_out_D[7:0]</obj_property>
+      <obj_property name="ObjectShortName">reg_out_D[7:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/accel_spi_rw_tb/ACL_DUMMY/wr_data_D" type="array">
+      <obj_property name="ElementShortName">wr_data_D[7:0]</obj_property>
+      <obj_property name="ObjectShortName">wr_data_D[7:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/accel_spi_rw_tb/ACL_DUMMY/i_acl_enabled" type="logic">
+      <obj_property name="ElementShortName">i_acl_enabled</obj_property>
+      <obj_property name="ObjectShortName">i_acl_enabled</obj_property>
+   </wvobject>
+   <wvobject fp_name="/accel_spi_rw_tb/ACL_DUMMY/wr_data_Q" type="array">
+      <obj_property name="ElementShortName">wr_data_Q[7:0]</obj_property>
+      <obj_property name="ObjectShortName">wr_data_Q[7:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/accel_spi_rw_tb/ACL_DUMMY/ctr" type="array">
+      <obj_property name="ElementShortName">ctr[2:0]</obj_property>
+      <obj_property name="ObjectShortName">ctr[2:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/accel_spi_rw_tb/ACL_DUMMY/state_D" type="other">
+      <obj_property name="ElementShortName">state_D</obj_property>
+      <obj_property name="ObjectShortName">state_D</obj_property>
+   </wvobject>
+   <wvobject fp_name="/accel_spi_rw_tb/ACL_DUMMY/state_Q" type="other">
+      <obj_property name="ElementShortName">state_Q</obj_property>
+      <obj_property name="ObjectShortName">state_Q</obj_property>
+   </wvobject>
+   <wvobject fp_name="/accel_spi_rw_tb/ACEL_DUT/MaxCounter1MHz" type="array">
+      <obj_property name="ElementShortName">MaxCounter1MHz[26:0]</obj_property>
+      <obj_property name="ObjectShortName">MaxCounter1MHz[26:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/accel_spi_rw_tb/ACEL_DUT/Pulse1MHz" type="logic">
+      <obj_property name="ElementShortName">Pulse1MHz</obj_property>
+      <obj_property name="ObjectShortName">Pulse1MHz</obj_property>
+   </wvobject>
+   <wvobject fp_name="/accel_spi_rw_tb/ACEL_DUT/dataAD" type="array">
+      <obj_property name="ElementShortName">dataAD[7:0]</obj_property>
+      <obj_property name="ObjectShortName">dataAD[7:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/accel_spi_rw_tb/ACEL_DUT/dataID" type="array">
+      <obj_property name="ElementShortName">dataID[7:0]</obj_property>
+      <obj_property name="ObjectShortName">dataID[7:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/accel_spi_rw_tb/ACEL_DUT/dataX" type="array">
+      <obj_property name="ElementShortName">dataX[7:0]</obj_property>
+      <obj_property name="ObjectShortName">dataX[7:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/accel_spi_rw_tb/ACEL_DUT/dataY" type="array">
+      <obj_property name="ElementShortName">dataY[7:0]</obj_property>
+      <obj_property name="ObjectShortName">dataY[7:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/accel_spi_rw_tb/ACEL_DUT/dataZ" type="array">
+      <obj_property name="ElementShortName">dataZ[7:0]</obj_property>
+      <obj_property name="ObjectShortName">dataZ[7:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/accel_spi_rw_tb/ACEL_DUT/sig24bitMiso" type="array">
+      <obj_property name="ElementShortName">sig24bitMiso[23:0]</obj_property>
+      <obj_property name="ObjectShortName">sig24bitMiso[23:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/accel_spi_rw_tb/ACEL_DUT/Moore_state_commandFSM" type="other">
+      <obj_property name="ElementShortName">Moore_state_commandFSM</obj_property>
+      <obj_property name="ObjectShortName">Moore_state_commandFSM</obj_property>
+   </wvobject>
+   <wvobject fp_name="/accel_spi_rw_tb/ACEL_DUT/SCLK" type="logic">
+      <obj_property name="ElementShortName">SCLK</obj_property>
+      <obj_property name="ObjectShortName">SCLK</obj_property>
+   </wvobject>
+   <wvobject fp_name="/accel_spi_rw_tb/ACEL_DUT/MOSI" type="logic">
+      <obj_property name="ElementShortName">MOSI</obj_property>
+      <obj_property name="ObjectShortName">MOSI</obj_property>
+   </wvobject>
+   <wvobject fp_name="/accel_spi_rw_tb/ACEL_DUT/MISO" type="logic">
+      <obj_property name="ElementShortName">MISO</obj_property>
+      <obj_property name="ObjectShortName">MISO</obj_property>
+   </wvobject>
+   <wvobject fp_name="/accel_spi_rw_tb/ACEL_DUT/timerDone" type="logic">
+      <obj_property name="ElementShortName">timerDone</obj_property>
+      <obj_property name="ObjectShortName">timerDone</obj_property>
+   </wvobject>
+   <wvobject fp_name="/accel_spi_rw_tb/ACEL_DUT/Moore_state_spiFSM" type="other">
+      <obj_property name="ElementShortName">Moore_state_spiFSM</obj_property>
+      <obj_property name="ObjectShortName">Moore_state_spiFSM</obj_property>
+   </wvobject>
+   <wvobject fp_name="/accel_spi_rw_tb/ACEL_DUT/sclkCntr" type="array">
+      <obj_property name="ElementShortName">sclkCntr[4:0]</obj_property>
+      <obj_property name="ObjectShortName">sclkCntr[4:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/accel_spi_rw_tb/ACEL_DUT/SPIstart" type="logic">
+      <obj_property name="ElementShortName">SPIstart</obj_property>
+      <obj_property name="ObjectShortName">SPIstart</obj_property>
+   </wvobject>
+   <wvobject fp_name="/accel_spi_rw_tb/ACEL_DUT/sig24bitMosi" type="array">
+      <obj_property name="ElementShortName">sig24bitMosi[23:0]</obj_property>
+      <obj_property name="ObjectShortName">sig24bitMosi[23:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/accel_spi_rw_tb/ACEL_DUT/toSPIbytes" type="array">
+      <obj_property name="ElementShortName">toSPIbytes[23:0]</obj_property>
+      <obj_property name="ObjectShortName">toSPIbytes[23:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/accel_spi_rw_tb/ACEL_DUT/cntr" type="array">
+      <obj_property name="ElementShortName">cntr[19:0]</obj_property>
+      <obj_property name="ObjectShortName">cntr[19:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/accel_spi_rw_tb/ACEL_DUT/timerStart" type="logic">
+      <obj_property name="ElementShortName">timerStart</obj_property>
+      <obj_property name="ObjectShortName">timerStart</obj_property>
+   </wvobject>
+   <wvobject fp_name="/accel_spi_rw_tb/ACEL_DUT/timerMax" type="array">
+      <obj_property name="ElementShortName">timerMax[19:0]</obj_property>
+      <obj_property name="ObjectShortName">timerMax[19:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/accel_spi_rw_tb/ACEL_DUT/SPIdone" type="logic">
+      <obj_property name="ElementShortName">SPIdone</obj_property>
+      <obj_property name="ObjectShortName">SPIdone</obj_property>
+   </wvobject>
+   <wvobject fp_name="/accel_spi_rw_tb/clk" type="logic">
+      <obj_property name="ElementShortName">clk</obj_property>
+      <obj_property name="ObjectShortName">clk</obj_property>
+   </wvobject>
+   <wvobject fp_name="/accel_spi_rw_tb/ACEL_DUT/CSb" type="logic">
+      <obj_property name="ElementShortName">CSb</obj_property>
+      <obj_property name="ObjectShortName">CSb</obj_property>
+   </wvobject>
+   <wvobject fp_name="/accel_spi_rw_tb/ACEL_DUT/SCLK" type="logic">
+      <obj_property name="ElementShortName">SCLK</obj_property>
+      <obj_property name="ObjectShortName">SCLK</obj_property>
+   </wvobject>
+   <wvobject fp_name="/accel_spi_rw_tb/ACL_DUMMY/reg_read_Q" type="array">
+      <obj_property name="ElementShortName">reg_read_Q[7:0]</obj_property>
+      <obj_property name="ObjectShortName">reg_read_Q[7:0]</obj_property>
+   </wvobject>
+</wave_config>
