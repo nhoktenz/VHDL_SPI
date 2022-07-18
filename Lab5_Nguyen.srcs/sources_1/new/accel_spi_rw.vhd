@@ -98,12 +98,8 @@ begin
         case Moore_state_commandFSM is
             when idle =>
                 SPIStart <= '1';
-                toSPIbytes <= x"0A2D02";
-                if (SPIdone = '1') then
-                    next_Moore_state_commandFSM <= doneStartup;
-                else
-                    next_Moore_state_commandFSM <= writeAddr2D;
-                end if;
+                toSPIbytes <= x"0A2D02";           
+                next_Moore_state_commandFSM <= writeAddr2D;
              when writeAddr2D =>
                 SPIStart <= '0';
                 if (SPIdone = '1') then
@@ -191,13 +187,15 @@ begin
     begin        
         case Moore_state_spiFSM is
             when idle =>
-                Csb <= '1'; 
+                CSb <= '1'; 
+                timerStart <= '0';
                 if SPIstart = '1' then
                     next_Moore_state_spiFSM <= setCSlow;
                 else
                     next_Moore_state_spiFSM <= idle;
                 end if;
             when setCSlow =>
+                CSb <= '0';             -- set CS low
                 timerStart <= '1';
                 timerMax <= to_unsigned(19,20); 
                 if timerDone = '1' then
@@ -223,29 +221,34 @@ begin
                 else
                     next_Moore_state_spiFSM <= sclkLo;
                 end if;
-             when incSclkCntr =>                   
-                    next_Moore_state_spiFSM <= checkSclkCntr;
+             when incSclkCntr =>  
+                timerStart <= '0';                 
+                next_Moore_state_spiFSM <= checkSclkCntr;
              when checkSclkCntr =>
+                timerStart <= '0';
                 if sclkCntr = 24 then
                     next_Moore_state_spiFSM <= setCShi;
                 else
                     next_Moore_state_spiFSM <= sclkHi;
                 end if;
-             when setCShi =>                   
+             when setCShi => 
+                    CSb <= '1';         -- set CS high    
+                    timerStart <= '0';              
                     next_Moore_state_spiFSM <= wait100ms;
              when wait100ms =>
                 timerStart <= '1';
-                timerMax <= to_unsigned(49,20);
-                Csb <= '1';
-                
-                SPIdone <= '1';
+                timerMax <= to_unsigned(100000,20);
+                CSb <= '1';                             
                 if timerDone = '1' and SPIdone = '1' then   --- timerDone goes high and SPIdone signal goes high
                     next_Moore_state_spiFSM <= idle;
                 else
                     next_Moore_state_spiFSM <= wait100ms;
                 end if;
-        end case;       
+        end case;     
+         SPIdone <= '1' when next_Moore_state_spiFSM = wait100ms and timerDone = '1' else '0';  
     end process SpiFSMState;
+   
+    
     
     process(clk, reset)
     begin
@@ -267,13 +270,15 @@ begin
             if(timerStart = '1') then
                 if(cntr < timerMax) then
                     cntr <= cntr + 1;
-                elsif (cntr = timerMax) then
-                    cntr <= (others => '0');
+                --elsif (cntr = timerMax) then
+                --    cntr <= (others => '0');
                 else
-                    cntr <= cntr;
+                    --cntr <= cntr;
+                    cntr <= (others => '0');
                 end if;
            else
-            cntr <= cntr;
+            --cntr <= cntr;
+            cntr <= (others => '0');
           end if;
       end if;
  end process timerForFSM;
@@ -292,7 +297,8 @@ begin
      elsif(rising_edge(clk)) then
            if  (Moore_state_spiFSM = wait100ms)  then-- reset sclkCntr when SPI FMS is done
                 sclkCntr <= to_unsigned(0,5);
-            elsif (Pulse1MHz = '1') then       
+            --elsif (Pulse1MHz = '1') then      
+            elsif (Moore_state_spiFSM = incSclkCntr) then -- incease sclkCntr in the incSclkCntr state 
                 sclkCntr <= sclkCntr + 1;             -- increase the sclkCntr everytime 1MHz pulse is high
             else
                 sclkCntr <= sclkCntr;
