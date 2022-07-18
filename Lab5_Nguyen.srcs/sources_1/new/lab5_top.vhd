@@ -15,7 +15,7 @@ Port (
            -- Clock
            CLK100MHZ : in STD_LOGIC;
            -- Switch 0 as active high reset
-           SW: in STD_LOGIC_VECTOR(3 downto 0); 
+           SW: in STD_LOGIC_VECTOR(4 downto 0); 
            
            --Push Buttons
            BTNU : in STD_LOGIC;
@@ -85,11 +85,12 @@ architecture Behavioral of lab5_top is
     signal btnRight_press_event: std_logic; 
 
 
-  signal DATA_X:  std_logic_vector(7 downto 0); 
-  signal DATA_Y :  std_logic_vector(7 downto 0); 
-  signal DATA_Z :  std_logic_vector(7 downto 0); 
-  signal ID_AD :  std_logic_vector(7 downto 0); 
-  signal ID_1D :  std_logic_vector(7 downto 0); 
+    --ACCEL SPI
+    signal DATA_X:  std_logic_vector(7 downto 0); 
+    signal DATA_Y :  std_logic_vector(7 downto 0); 
+    signal DATA_Z :  std_logic_vector(7 downto 0); 
+    signal ID_AD :  std_logic_vector(7 downto 0); 
+    signal ID_1D :  std_logic_vector(7 downto 0); 
 
 begin
  -- switch 0 is reset
@@ -125,15 +126,15 @@ begin
      (
         clk => CLK100MHZ, 
         reset => reset, 
-      DATA_X => DATA_X, 
-      DATA_Y => DATA_Y,
-      DATA_Z => DATA_Z,
-      ID_AD => ID_AD,
-      ID_1D => ID_1D,
-      CSb => ACL_CSN,
-      MOSI => ACL_MOSI,
-      SCLK => ACL_SCLK, 
-      MISO => ACL_MISO 
+        DATA_X => DATA_X, 
+        DATA_Y => DATA_Y,
+        DATA_Z => DATA_Z,
+        ID_AD => ID_AD,
+        ID_1D => ID_1D,
+        CSb => ACL_CSN,
+        MOSI => ACL_MOSI,
+        SCLK => ACL_SCLK, 
+        MISO => ACL_MISO 
      );
      
        
@@ -302,9 +303,35 @@ begin
     -- SW(4:3) of '01' shows the value of register 0x08 in display 5 and 4 and should have all zeros on display 6 and 7
     -- SW(4:3) of '10' shows the value of register 0x09 in display 5 and 4 and should have all zeros on display 6 and 7
     -- SW(4:3) of '11' shows the value of register 0x0A in display 5 and 5 and should have all zeros on display 6 and 7
-    char4 <= (others => '0');
-    char5 <= (others => '0');
-    char6 <= (others => '0');
-    char7 <= (others => '0');
+
+process(SW(4 downto 3))
+begin
+    if (SW(4) = '0' and SW(3) = '0') then
+        char4 <= ID_AD(3 downto 0); 
+        char5 <= ID_AD(7 downto 4); 
+        char6 <= ID_1D(3 downto 0);
+        char7 <= ID_1D(7 downto 4);
+    elsif (SW(4) = '0' and SW(3) = '1') then
+        char4 <= DATA_X(3 downto 0);
+        char5 <= DATA_X(7 downto 4);
+        char6 <= (others => '0');
+        char7 <= (others => '0');
+     elsif (SW(4) = '1' and SW(3) = '0') then
+        char4 <= DATA_Y(3 downto 0);
+        char5 <= DATA_Y(7 downto 4);
+        char6 <= (others => '0');
+        char7 <= (others => '0');
+    else
+        char4 <= DATA_Z(3 downto 0);
+        char5 <= DATA_Z(7 downto 4);
+        char6 <= (others => '0');
+        char7 <= (others => '0');
+    end if;
+end process;
+                          
+    
+ 
+
+    
 
 end Behavioral;
