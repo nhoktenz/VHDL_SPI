@@ -72,7 +72,7 @@ type commandFSM is (
 );
 
 signal Moore_state_commandFSM: commandFSM;
-signal next_Moore_state_commandFSM: commandFSM;
+--signal next_Moore_state_commandFSM: commandFSM;
 
 type spiFSM is (
     idle,
@@ -86,178 +86,175 @@ type spiFSM is (
 );
 
 signal Moore_state_spiFSM: spiFSM;
-signal next_Moore_state_spiFSM: spiFSM;
+--signal next_Moore_state_spiFSM: spiFSM;
 
 
 begin
     -----------------------------------------------------
     ---------------- Command FSM ------------------------
     -----------------------------------------------------
-    CommandFSMState: process(Moore_state_commandFSM, SPIdone)
-    begin      
-        case Moore_state_commandFSM is
-            when idle =>
-                SPIStart <= '1';
-                toSPIbytes <= x"0A2D02";           
-                next_Moore_state_commandFSM <= writeAddr2D;
-             when writeAddr2D =>
-                SPIStart <= '0';
-                if (SPIdone = '1') then
-                    next_Moore_state_commandFSM <= doneStartup;
-                else
-                    next_Moore_state_commandFSM <= writeAddr2D;
-                end if;
-             when doneStartup =>
-                SPIStart <= '1';
-                toSPIbytes <= x"0B0000";             
-                next_Moore_state_commandFSM <= readAddr00;
-             when readAddr00 =>
-                SPIStart <= '0';
-                if (SPIdone = '1') then
-                    next_Moore_state_commandFSM <= captureID_AD;
-                else
-                    next_Moore_state_commandFSM <= readAddr00;
-                end if;
-              when captureID_AD =>
-                SPIStart <= '1';
-                toSPIbytes <= x"0B0100";                
-                next_Moore_state_commandFSM <= readAddr01;
-              when readAddr01 =>
-                SPIStart <= '0';
-                if (SPIdone = '1') then
-                    next_Moore_state_commandFSM <= captureID_1D;
-                else
-                    next_Moore_state_commandFSM <= readAddr01;
-                end if;
-            when captureID_1D =>
-                SPIStart <= '1';
-                toSPIbytes <= x"0B0800";           
-                next_Moore_state_commandFSM <= readAddr08;
-           when readAddr08 =>
-                SPIStart <= '0';
-                if (SPIdone = '1') then
-                    next_Moore_state_commandFSM <= captureX;
-                else
-                    next_Moore_state_commandFSM <= readAddr08;
-                end if;
-            when captureX =>
-                SPIStart <= '1';
-                toSPIbytes <= x"0B0900";
-                next_Moore_state_commandFSM <= readAddr09;
-            when readAddr09 =>
-                SPIStart <= '0';
-                if (SPIdone = '1') then
-                    next_Moore_state_commandFSM <= captureY;
-                else
-                    next_Moore_state_commandFSM <= readAddr09;
-                end if; 
-            when captureY =>
-                SPIStart <= '1';
-                toSPIbytes <= x"0B0A00";
-                next_Moore_state_commandFSM <= readAddr0A;
-            when readAddr0A =>
-                SPIStart <= '0';
-                if (SPIdone = '1') then
-                    next_Moore_state_commandFSM <= captureZ;
-                else
-                    next_Moore_state_commandFSM <= readAddr0A;
-                end if;
-            when captureZ =>
-                SPIStart <= '1';
-                toSPIbytes <= x"0B0000";
-                next_Moore_state_commandFSM <= readAddr00;
-        end case;     
-        
-    end process CommandFSMState;
-    
-    process (clk, reset)
-    begin
-        if(reset = '1') then
+    CommandFSMState: process(reset, clk)
+    begin    
+         if(reset = '1') then
             Moore_state_commandFSM <= idle;
         elsif (rising_edge(clk)) then
-            Moore_state_commandFSM <= next_Moore_state_commandFSM;
-        end if;
-    end process;
+            case Moore_state_commandFSM is
+                when idle =>                   
+                    Moore_state_commandFSM <= writeAddr2D;
+                 when writeAddr2D =>
+                    if (SPIdone = '1') then
+                        Moore_state_commandFSM <= doneStartup;
+                    else
+                        Moore_state_commandFSM <= writeAddr2D;
+                    end if;
+                 when doneStartup =>
+                    Moore_state_commandFSM <= readAddr00;
+                 when readAddr00 =>
+                    if (SPIdone = '1') then
+                        Moore_state_commandFSM <= captureID_AD;
+                    else
+                        Moore_state_commandFSM <= readAddr00;
+                    end if;
+                  when captureID_AD =>
+                    Moore_state_commandFSM <= readAddr01;
+                  when readAddr01 =>
+                    if (SPIdone = '1') then
+                        Moore_state_commandFSM <= captureID_1D;
+                    else
+                        Moore_state_commandFSM <= readAddr01;
+                    end if;
+                when captureID_1D =>
+                    Moore_state_commandFSM <= readAddr08;
+               when readAddr08 =>
+                    if (SPIdone = '1') then
+                        Moore_state_commandFSM <= captureX;
+                    else
+                        Moore_state_commandFSM <= readAddr08;
+                    end if;
+                when captureX =>
+                    Moore_state_commandFSM <= readAddr09;
+                when readAddr09 =>
+                    if (SPIdone = '1') then
+                        Moore_state_commandFSM <= captureY;
+                    else
+                        Moore_state_commandFSM <= readAddr09;
+                    end if; 
+                when captureY =>
+                    Moore_state_commandFSM <= readAddr0A;
+                when readAddr0A =>
+                    if (SPIdone = '1') then
+                        Moore_state_commandFSM <= captureZ;
+                    else
+                        Moore_state_commandFSM <= readAddr0A;
+                    end if;
+                when captureZ =>
+                    Moore_state_commandFSM <= readAddr00;
+            end case;
+        end if;        
+    end process CommandFSMState;
     
-
+    
+    SPIStart <= '1' when Moore_state_commandFSM = idle 
+                      or Moore_state_commandFSM = doneStartup
+                      or Moore_state_commandFSM = captureID_AD
+                      or Moore_state_commandFSM = captureID_1D
+                      or Moore_state_commandFSM = captureX
+                      or Moore_state_commandFSM = captureY
+                      or Moore_state_commandFSM = captureZ
+             else '0';
+             
+             
+   with Moore_state_commandFSM select
+   toSPIbytes <= x"0A2D02" when idle,
+                 x"0A2D02" when writeAddr2D,
+                 x"0B0000" when doneStartup, 
+                 x"0B0000" when readAddr00, 
+                 x"0B0100" when captureID_AD,
+                 x"0B0100" when readAddr01,
+                 x"0B0800" when captureID_1D,
+                 x"0B0800" when readAddr08,
+                 x"0B0900" when captureX,
+                 x"0B0900" when readAddr09,
+                 x"0B0A00" when captureY,
+                 x"0B0A00" when readAddr0A,
+                 x"0B0000" when others;
+                         
+ 
     -----------------------------------------------------
     -------------------- SPI FSM-------------------------
     -----------------------------------------------------
-    SpiFSMState: process(Moore_state_spiFSM, SPIstart,timerDone,sclkCntr, SPIdone)
-    begin        
-        case Moore_state_spiFSM is
-            when idle =>
-                CSb <= '1'; 
-                timerStart <= '0';
-                if SPIstart = '1' then
-                    next_Moore_state_spiFSM <= setCSlow;
-                else
-                    next_Moore_state_spiFSM <= idle;
-                end if;
-            when setCSlow =>
-                CSb <= '0';             -- set CS low
-                timerStart <= '1';
-                timerMax <= to_unsigned(19,20); 
-                if timerDone = '1' then
-                    next_Moore_state_spiFSM <= sclkHi;
-                else
-                    next_Moore_state_spiFSM <= setCSlow;
-                end if;
-            when sclkHi =>
-                timerStart <= '1';
-                timerMax <= to_unsigned(49,20);
-                SCLK <= '1';
-                if timerDone = '1' then
-                    next_Moore_state_spiFSM <= sclkLo;
-                else
-                    next_Moore_state_spiFSM <= sclkHi;
-                end if;
-             when sclkLo =>
-                timerStart <= '1';
-                timerMax <= to_unsigned(49,20);
-                SCLK <= '0';
-                if timerDone = '1' then
-                    next_Moore_state_spiFSM <= incSclkCntr;
-                else
-                    next_Moore_state_spiFSM <= sclkLo;
-                end if;
-             when incSclkCntr =>  
-                timerStart <= '0';                 
-                next_Moore_state_spiFSM <= checkSclkCntr;
-             when checkSclkCntr =>
-                timerStart <= '0';
-                if sclkCntr = 24 then
-                    next_Moore_state_spiFSM <= setCShi;
-                else
-                    next_Moore_state_spiFSM <= sclkHi;
-                end if;
-             when setCShi => 
-                    CSb <= '1';         -- set CS high    
-                    timerStart <= '0';              
-                    next_Moore_state_spiFSM <= wait100ms;
-             when wait100ms =>
-                timerStart <= '1';
-                timerMax <= to_unsigned(100000,20);
-                CSb <= '1';                             
-                if timerDone = '1' and SPIdone = '1' then   --- timerDone goes high and SPIdone signal goes high
-                    next_Moore_state_spiFSM <= idle;
-                else
-                    next_Moore_state_spiFSM <= wait100ms;
-                end if;
-        end case;     
-         SPIdone <= '1' when next_Moore_state_spiFSM = wait100ms and timerDone = '1' else '0';  
-    end process SpiFSMState;
-   
-    
-    
-    process(clk, reset)
+    SpiFSMState: process(reset, clk)
     begin
         if(reset = '1') then
             Moore_state_spiFSM <= idle;
         elsif (rising_edge(clk)) then
-            Moore_state_spiFSM <= next_Moore_state_spiFSM;
-        end if;
-    end process;   
+            case Moore_state_spiFSM is
+            when idle =>
+                if SPIstart = '1' then
+                    Moore_state_spiFSM <= setCSlow;
+                else
+                    Moore_state_spiFSM <= idle;
+                end if;
+            when setCSlow =>
+                if timerDone = '1' then
+                    Moore_state_spiFSM <= sclkHi;
+                else
+                    Moore_state_spiFSM <= setCSlow;
+                end if;
+            when sclkHi =>
+                if timerDone = '1' then
+                    Moore_state_spiFSM <= sclkLo;
+                else
+                    Moore_state_spiFSM <= sclkHi;
+                end if;
+             when sclkLo =>
+                if timerDone = '1' then
+                    Moore_state_spiFSM <= incSclkCntr;
+                else
+                    Moore_state_spiFSM <= sclkLo;
+                end if;
+             when incSclkCntr =>  
+                Moore_state_spiFSM <= checkSclkCntr;
+             when checkSclkCntr =>
+                if sclkCntr = 24 then
+                    Moore_state_spiFSM <= setCShi;
+                else
+                    Moore_state_spiFSM <= sclkHi;
+                end if;
+             when setCShi => 
+                    Moore_state_spiFSM <= wait100ms;
+             when wait100ms =>
+                if timerDone = '1' and SPIdone='1' then   --- timerDone goes high and SPIdone signal goes high
+                    Moore_state_spiFSM <= idle;
+                else
+                    Moore_state_spiFSM <= wait100ms;
+                end if;
+            end case; 
+        end if;                    
+    end process SpiFSMState;
+    
+    CSb <= '1' when Moore_state_spiFSM = idle
+                    or Moore_state_spiFSM = setCShi
+                    or Moore_state_spiFSM = wait100ms
+          else '0';
+    
+    SCLK <= '1' when Moore_state_spiFSM = sclkHi else '0';
+          
+    timerStart <= '1' when Moore_state_spiFSM = setCSlow
+                        or Moore_state_spiFSM = sclkHi
+                        or Moore_state_spiFSM = sclkLo
+                        or Moore_state_spiFSM = wait100ms
+           else '0';
+           
+           
+    SPIdone <= '1' when Moore_state_spiFSM = wait100ms and timerDone = '1' else '0';
+           
+    with Moore_state_spiFSM select
+        timerMax <= to_unsigned(19,20) when setCSlow,
+                    to_unsigned(49,20) when sclkHi, 
+                    to_unsigned(49,20) when sclkLo,
+                    to_unsigned(100000,20) when wait100ms,
+                    to_unsigned(0,20) when others;   
     
    -----------------------------------------------------
    --------------- Timer for FSM process ---------------          
