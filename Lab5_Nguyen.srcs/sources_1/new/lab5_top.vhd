@@ -16,6 +16,7 @@ Port (
            CLK100MHZ : in STD_LOGIC;
            -- Switch 0 as active high reset
            SW: in STD_LOGIC_VECTOR(4 downto 0); 
+           LED: out STD_LOGIC_VECTOR(4 downto 0);
            
            --Push Buttons
            BTNU : in STD_LOGIC;
@@ -93,24 +94,34 @@ architecture Behavioral of lab5_top is
     signal ID_1D :  std_logic_vector(7 downto 0); 
 
     constant xLevel: std_logic_vector(7 downto 0) := "11111100";   -- "0xFC is the level X
+    constant yLevel: std_logic_vector(7 downto 0) := "00000010";   -- "0x02 is the level X
     constant rightTiltValue: std_logic_vector(7 downto 0) := "11111111"; -- 0xFF for the right tilt
     constant leftTiltValue: std_logic_vector(7 downto 0) := "11111010"; -- 0xFA for the left tilt
-    constant spiIntV: std_logic_vector(7 downto 0) := "00000010";
+    constant downTiltValue: std_logic_vector(7 downto 0) := "11111111"; -- 0xFF for the down tilt
+    constant upTiltValue: std_logic_vector(7 downto 0) := "00000100"; -- 0x04 for the left tilt
+   
     
     signal right_tilt_trigger: std_logic;
     signal left_tilt_trigger: std_logic;
+    signal down_tilt_trigger: std_logic;
+    signal up_tilt_trigger: std_logic;
     
     signal right_tilt_trigger_prev: std_logic;
     signal left_tilt_trigger_prev: std_logic;
+    signal down_tilt_trigger_prev: std_logic;
+    signal up_tilt_trigger_prev: std_logic;
     
     signal left_tilt_event: std_logic;
     signal right_tilt_event: std_logic;
+    signal down_tilt_event: std_logic;
+    signal up_tilt_event: std_logic;
     
 begin
  -- switch 0 is reset
    reset <= SW(0);     
    
- -- switch 1 high => go to SPI Accel
+ -- LED on when SW is on
+    LED <= SW;
     
      
      ------------------------------------------------------------------------------------           
@@ -240,22 +251,42 @@ begin
      
      btnRight_press_event <= '1' when btnRight_bd = '1' and btnRight_db_prev = '0' else '0';
      
-    right_tilt_trigger <= '1' when DATA_X = rightTiltValue else '0';
-    left_tilt_trigger <= '1' when DATA_X = leftTiltValue else '0';
+   
     
-    process(CLK100MHZ, reset)
+--    process(CLK100MHZ, reset)
+--     begin
+--        if (reset = '1') then
+--            right_tilt_trigger_prev <= '0';
+--        elsif (rising_edge(CLK100MHZ)) then
+--            right_tilt_trigger_prev <= right_tilt_trigger; 
+--        end if;    
+--     end process;
+
+
+    right_tilt_trigger <= '1' when DATA_X = rightTiltValue else '0';
+    left_tilt_trigger <= '1' when DATA_X = leftTiltValue else '0';    
+    down_tilt_trigger <= '1' when DATA_Y = downTiltValue else '0';
+    up_tilt_trigger <= '1' when DATA_Y = upTiltValue else '0';
+    
+     process(CLK100MHZ, reset)
      begin
         if (reset = '1') then
-            right_tilt_trigger_prev <= '0';
             left_tilt_trigger_prev <= '0';
+            right_tilt_trigger_prev <= '0';
+            down_tilt_trigger_prev <= '0';
+            up_tilt_trigger_prev <= '0';
         elsif (rising_edge(CLK100MHZ)) then
-            right_tilt_trigger_prev <= right_tilt_trigger; -- previous value of button pushed
-            left_tilt_trigger_prev <= left_tilt_trigger;
+            left_tilt_trigger_prev <= left_tilt_trigger; 
+            right_tilt_trigger_prev <= right_tilt_trigger;
+            down_tilt_trigger_prev <= down_tilt_trigger; 
+            up_tilt_trigger_prev <= up_tilt_trigger;
         end if;    
      end process;
-
-    right_tilt_event <= right_tilt_trigger and (not right_tilt_trigger_prev);
-    left_tilt_event <= left_tilt_trigger and (not left_tilt_trigger_prev);
+     
+    left_tilt_event <= left_tilt_trigger and not left_tilt_trigger_prev;
+    right_tilt_event <= right_tilt_trigger and not right_tilt_trigger_prev;
+    down_tilt_event <= down_tilt_trigger and not down_tilt_trigger_prev;
+    up_tilt_event <= up_tilt_trigger and not up_tilt_trigger_prev;
        
     -- Design a process for a 8-bits counter with an enable that counts everytime the enable goes high
     -- When buttons is press, it set the location for the red square
@@ -267,37 +298,55 @@ begin
             vcnt <= (others => '0');
          elsif(rising_edge(CLK100MHZ)) then
             
-            if(vcnt = VMax) then               -- set vertical counter to 0 when it reach the max value which is 15
+            if(vcnt >= VMax) then               -- set vertical counter to 0 when it reach the max value which is 15
                 vcnt <= (others => '0');
              else
-                if(btnUp_press_event = '1') then 
-                    if(vcnt = "00000000") then      -- set the vertical counter to max value - 1 (because 0 is the first number) when its value is 0 and button up is pressed
-                        vcnt <= VMax -1;
+                if(SW(1) = '0') then
+                
+                    if(btnUp_press_event = '1') then 
+                        if(vcnt = "00000000") then      -- set the vertical counter to max value - 1 (because 0 is the first number) when its value is 0 and button up is pressed
+                            vcnt <= VMax -1;
+                        else
+                            vcnt <= vcnt - 1;
+                        end if;
+                        
+                    elsif (btnDown_press_event = '1') then
+                        vcnt <= vcnt + 1;
                     else
-                        vcnt <= vcnt - 1;
+                        vcnt <= vcnt;
                     end if;
-                    
-                elsif (btnDown_press_event = '1') then
-                    vcnt <= vcnt + 1;
-                else
-                    vcnt <= vcnt;
-                end if;
-             end if; -- end if(vcnt = VMax) then  
+                
+               else 
+                    if(up_tilt_event = '1') then
+                        if(vcnt = "00000000") then
+                            vcnt <= VMax - 1;
+                        else
+                            vcnt <= vcnt - 1;               
+                        end if;
+                    elsif(down_tilt_event = '1') then
+                        vcnt <= vcnt +1;               
+                    else
+                        vcnt <= vcnt;
+                    end if;  
+                 end if;
+                 
+             end if;
              
-             if(hcnt = HMax) then       -- set horizontal counter to 0 when it reaches its max which is 20
+             if(hcnt >= HMax) then       -- set horizontal counter to 0 when it reaches its max which is 20
                  hcnt <= (others => '0');
              else
                 if(SW(1)= '1') then
                     if(left_tilt_event = '1') then
-                        hcnt <= hcnt - 1;               
-                    else
-                        hcnt <= hcnt;
-                    end if;  -- end if(SW(1)= '1') then
-                    if(right_tilt_event = '1') then
+                        if(hcnt = "00000000") then
+                            hcnt <= HMax - 1;
+                        else
+                            hcnt <= hcnt - 1;               
+                        end if;
+                    elsif(right_tilt_event = '1') then
                         hcnt <= hcnt +1;               
                     else
                         hcnt <= hcnt;
-                    end if;  -- end if(SW(1)= '1') then
+                    end if;  
                   
                 else
                     if (btnLeft_press_event = '1') then -- if button left is pressed and the horizontal counter reach to 0 then set horizontal counter to its max value -1 (because 0 is the first value)
@@ -311,9 +360,9 @@ begin
                        hcnt <= hcnt + 1;
                     else
                         hcnt <= hcnt;
-                    end if; -- end if (btnLeft_press_event = '1') then
-                end if; -- end  if(SW(1)= '1') then
-             end if; -- end if(hcnt = HMax) then
+                    end if;
+                end if; 
+             end if; 
          end if;  -- end if(reset = '1') then
                                      
         

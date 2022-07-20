@@ -1,0 +1,96 @@
+Copyright 1986-2022 Xilinx, Inc. All Rights Reserved.
+-------------------------------------------------------------------------------------
+| Tool Version : Vivado v.2022.1 (win64) Build 3526262 Mon Apr 18 15:48:16 MDT 2022
+| Date         : Wed Jul 20 00:11:50 2022
+| Host         : Thuong-Nguyen-PC running 64-bit major release  (build 9200)
+| Command      : report_control_sets -verbose -file lab5_top_control_sets_placed.rpt
+| Design       : lab5_top
+| Device       : xc7a100t
+-------------------------------------------------------------------------------------
+
+Control Set Information
+
+Table of Contents
+-----------------
+1. Summary
+2. Histogram
+3. Flip-Flop Distribution
+4. Detailed Control Set Information
+
+1. Summary
+----------
+
++----------------------------------------------------------+-------+
+|                          Status                          | Count |
++----------------------------------------------------------+-------+
+| Total control sets                                       |    18 |
+|    Minimum number of control sets                        |    18 |
+|    Addition due to synthesis replication                 |     0 |
+|    Addition due to physical synthesis replication        |     0 |
+| Unused register locations in slices containing registers |    33 |
++----------------------------------------------------------+-------+
+* Control sets can be merged at opt_design using control_set_merge or merge_equivalent_drivers
+** Run report_qor_suggestions for automated merging and remapping suggestions
+
+
+2. Histogram
+------------
+
++--------------------+-------+
+|       Fanout       | Count |
++--------------------+-------+
+| Total control sets |    18 |
+| >= 0 to < 4        |     0 |
+| >= 4 to < 6        |     4 |
+| >= 6 to < 8        |     0 |
+| >= 8 to < 10       |     6 |
+| >= 10 to < 12      |     2 |
+| >= 12 to < 14      |     0 |
+| >= 14 to < 16      |     0 |
+| >= 16              |     6 |
++--------------------+-------+
+* Control sets can be remapped at either synth_design or opt_design
+
+
+3. Flip-Flop Distribution
+-------------------------
+
++--------------+-----------------------+------------------------+-----------------+--------------+
+| Clock Enable | Synchronous Set/Reset | Asynchronous Set/Reset | Total Registers | Total Slices |
++--------------+-----------------------+------------------------+-----------------+--------------+
+| No           | No                    | No                     |               4 |            4 |
+| No           | No                    | Yes                    |             106 |           34 |
+| No           | Yes                   | No                     |               0 |            0 |
+| Yes          | No                    | No                     |               0 |            0 |
+| Yes          | No                    | Yes                    |             201 |           51 |
+| Yes          | Yes                   | No                     |               0 |            0 |
++--------------+-----------------------+------------------------+-----------------+--------------+
+
+
+4. Detailed Control Set Information
+-----------------------------------
+
++----------------------+---------------------------------------------------------+------------------+------------------+----------------+--------------+
+|     Clock Signal     |                      Enable Signal                      | Set/Reset Signal | Slice Load Count | Bel Load Count | Bels / Slice |
++----------------------+---------------------------------------------------------+------------------+------------------+----------------+--------------+
+|  CLK100MHZ_IBUF_BUFG |                                                         |                  |                4 |              4 |         1.00 |
+|  CLK100MHZ_IBUF_BUFG | accel_spi/down_tilt_trigger_prev_reg[0]                 | LED_OBUF[0]      |                1 |              4 |         4.00 |
+|  CLK100MHZ_IBUF_BUFG | accel_spi/sclkCntr[4]_i_1_n_0                           | LED_OBUF[0]      |                2 |              5 |         2.50 |
+|  CLK100MHZ_IBUF_BUFG | accel_spi/E[0]                                          | LED_OBUF[0]      |                2 |              5 |         2.50 |
+|  CLK100MHZ_IBUF_BUFG | accel_spi/FSM_onehot_Moore_state_commandFSM_reg_n_0_[4] | LED_OBUF[0]      |                2 |              8 |         4.00 |
+|  CLK100MHZ_IBUF_BUFG | accel_spi/p_2_in5_in                                    | LED_OBUF[0]      |                2 |              8 |         4.00 |
+|  CLK100MHZ_IBUF_BUFG | accel_spi/p_1_in_1                                      | LED_OBUF[0]      |                2 |              8 |         4.00 |
+|  CLK100MHZ_IBUF_BUFG | accel_spi/p_0_in4_in                                    | LED_OBUF[0]      |                2 |              8 |         4.00 |
+|  CLK100MHZ_IBUF_BUFG | accel_spi/p_3_in6_in                                    | LED_OBUF[0]      |                2 |              8 |         4.00 |
+|  CLK100MHZ_IBUF_BUFG | accel_spi/sig24bitMiso0                                 | LED_OBUF[0]      |                1 |              8 |         8.00 |
+|  CLK100MHZ_IBUF_BUFG | vga/pulseGenerator/en25                                 | LED_OBUF[0]      |                4 |             10 |         2.50 |
+|  CLK100MHZ_IBUF_BUFG | vga/pulseGenerator/E[0]                                 | LED_OBUF[0]      |                3 |             10 |         3.33 |
+|  CLK100MHZ_IBUF_BUFG | accel_spi/sig24bitMosi[23]_i_1_n_0                      | LED_OBUF[0]      |                4 |             23 |         5.75 |
+|  CLK100MHZ_IBUF_BUFG | btnDownDebounce/counter[0]_i_1__0_n_0                   | LED_OBUF[0]      |                6 |             24 |         4.00 |
+|  CLK100MHZ_IBUF_BUFG | btnLeftDebounce/counter[0]_i_1__1_n_0                   | LED_OBUF[0]      |                6 |             24 |         4.00 |
+|  CLK100MHZ_IBUF_BUFG | btnRightDebounce/counter[0]_i_1__2_n_0                  | LED_OBUF[0]      |                6 |             24 |         4.00 |
+|  CLK100MHZ_IBUF_BUFG | btnUpDebounce/counter[0]_i_1_n_0                        | LED_OBUF[0]      |                6 |             24 |         4.00 |
+|  CLK100MHZ_IBUF_BUFG |                                                         | LED_OBUF[0]      |               34 |            106 |         3.12 |
++----------------------+---------------------------------------------------------+------------------+------------------+----------------+--------------+
+
+

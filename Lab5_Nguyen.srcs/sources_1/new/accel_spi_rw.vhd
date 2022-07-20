@@ -254,7 +254,7 @@ begin
         timerMax <= to_unsigned(19,20) when setCSlow,
                     to_unsigned(49,20) when sclkHi, 
                     to_unsigned(49,20) when sclkLo,
-                    to_unsigned(1000000,20) when wait100ms,
+                    to_unsigned(100000,20) when wait100ms,
                     to_unsigned(0,20) when others;   
     
    -----------------------------------------------------
