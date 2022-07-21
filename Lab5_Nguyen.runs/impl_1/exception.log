@@ -1,0 +1,4 @@
+ERROR: Exception caught trying to open file D:\JHU\FPGA\Lab\Lab5_Nguyen\Lab5_Nguyen.runs\impl_1/runme.log
+	Exception name: Error
+	Exception error code: 70
+	Exception message: Permission denied

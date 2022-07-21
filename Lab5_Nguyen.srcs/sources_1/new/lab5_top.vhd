@@ -16,12 +16,12 @@
 ----- SW(4:3) of '10' shows the value of register 0x09 on display 4 and 5 and should have all zeros on display 6 and 7
 ----- SW(4:3) of '11' shows the value of register 0x0A on display 4 and 5 and should have all zeros on display 6 and 7
 
---- ** In addition: 
+--- ** Additional (not lab requirements): 
 ----- SW(2) goes high show the DataX (register 0x08) on display 4 and 5 and DataY (register 0x09) on display 6 and 7
----- LED 5 lit up when red square is at x = 0
----- LED 6 lit up when red square is at xMax (d19)
----- LED 7 lit up when red square is at y = 0
----- LED 8 lit up when red square is at yMax (d14) 
+---- LED 7 lit up when red square is at x = 0
+---- LED 8 lit up when red square is at xMax (d19)
+---- LED 5 lit up when red square is at y = 0
+---- LED 6 lit up when red square is at yMax (d14) 
 
 ----------------------------------------------------------------------------------
 
@@ -38,7 +38,7 @@ Port (
            CLK100MHZ : in STD_LOGIC;
            -- Switch 0 as active high reset
            SW: in STD_LOGIC_VECTOR(4 downto 0); 
-           LED: out STD_LOGIC_VECTOR(8 downto 0);
+           LED: out STD_LOGIC_VECTOR(10 downto 0);
            
            --Push Buttons
            BTNU : in STD_LOGIC;
@@ -131,6 +131,10 @@ architecture Behavioral of lab5_top is
     signal down_tilt_event: std_logic;
     signal up_tilt_event: std_logic;
     
+    
+   
+    signal clk_counter : natural range 0 to 50000000 := 0;
+	signal blinker : std_logic := '0';
     
 begin
  -- switch 0 is reset
@@ -407,14 +411,29 @@ begin
     end process btn_counter;
     
     
-    -- LED 5 lit up when red square is at x = 0
-    -- LED 6 lit up when red square is at xMax (d19)
-    -- LED 7 lit up when red square is at y = 0
-    -- LED 8 lit up when red square is at yMax (d14)
-    LED(5) <=  '1' when hcnt = x"00" else '0' ;
-    LED(6) <=  '1' when hcnt = x"13" else '0' ;
-    LED(7) <=  '1' when vcnt = x"00" else '0' ;
-    LED(8) <= '1' when vcnt = x"0E" else '0' ;
+    -- LED 7 lit up when red square is at x = 0
+    -- LED 8 lit up when red square is at xMax (d19 /x13)
+    -- LED 5 lit up when red square is at y = 0
+    -- LED 6 lit up when red square is at yMax (d14 / x0E)
+    LED(7) <=  '1' when hcnt = x"00" else '0' ;
+    LED(8) <=  '1' when hcnt = x"13" else '0' ;
+    LED(5) <=  '1' when vcnt = x"00" else '0' ;
+    LED(6) <= '1' when vcnt = x"0E" else '0' ;
+     
+    process (reset, CLK100MHZ)
+    begin
+        if(reset = '1') then                    
+            clk_counter <= 0;
+         elsif(rising_edge(CLK100MHZ)) then 
+            clk_counter <= clk_counter + 1; 
+			if clk_counter >= 50000000 then 
+			  blinker <= not blinker;
+			  clk_counter <= 0;
+			end if;
+         end if;
+    end process;
+    LED(9) <= blinker;
+    
 
     ------------------------------------------------------------------------------------
     ------------------------------------- 7 SEGMENTS DISPLAY --------------------------
