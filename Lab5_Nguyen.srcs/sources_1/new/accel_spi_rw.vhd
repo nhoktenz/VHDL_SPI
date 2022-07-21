@@ -1,15 +1,22 @@
 ----------------------------------------------------------------------------------
--- Thuong Nguyen 
--- Accellerator ADXL362
+---------------------------- Thuong Nguyen---------------------------------------
+----------------------------------------------------------------------------------
+-- Accellerator ADXL362 Read/Write
 -- datasheet: https://www.analog.com/media/en/technical-documentation/data-sheets/adxl362.pdf 
 -- 0x0A : write register
+----- For example: 0x0A2D02 is write (0x0A) to register 0x2D data value 0x02
 -- 0x0B: read register
 -- Address 0x00 to Address 0x2E are for customer access, as described in the register map. 
 -- Address 0x2F to Address 0x3F are reserved for factory use
+-- Register 0x00 --> result always 0xAD
+-- Register 0x01 --> result always 0x1D
+-- Register 0x02 --> result always 0xF2
+-- Register 0x03 --> result always 0x01
+-- Register 0x08 --> DataX
+-- Register 0x09 --> DataY
+-- Regisrer 0x0A --> DataZ
 
 ----------------------------------------------------------------------------------
-
-
 library IEEE;
 use IEEE.STD_LOGIC_1164.ALL;
 use IEEE.NUMERIC_STD.ALL;
@@ -31,13 +38,10 @@ Port ( clk : in STD_LOGIC;
       MISO : in STD_LOGIC); 
 end accel_spi_rw;
 
-architecture Behavioral of accel_spi_rw is
-    signal MaxCounter1MHz : unsigned(26 downto 0);                 -- maxium counter to match to the MaxCount from pulseGenerator
-    signal Pulse1MHz : std_logic;                                  -- pulse out every 1MHz
-     
-    signal toSPIbytes: std_logic_vector(23 downto 0);          -- 24-bit register
+architecture Behavioral of accel_spi_rw is    
+    signal toSPIbytes: std_logic_vector(23 downto 0);         -- 24-bit register
     signal SPIstart: std_logic; 
-    signal SPIdone: std_logic;                                 -- transition input signal for the command FSM state machine
+    signal SPIdone: std_logic;                                -- transition input signal for the command FSM state machine
     signal timerDone: std_logic;
     signal timerStart: std_logic;
     signal timerMax: unsigned(19 downto 0);                 -- max Counter
@@ -72,7 +76,6 @@ type commandFSM is (
 );
 
 signal Moore_state_commandFSM: commandFSM;
---signal next_Moore_state_commandFSM: commandFSM;
 
 type spiFSM is (
     idle,
@@ -86,13 +89,11 @@ type spiFSM is (
 );
 
 signal Moore_state_spiFSM: spiFSM;
---signal next_Moore_state_spiFSM: spiFSM;
-
 
 begin
-    -----------------------------------------------------
-    ---------------- Command FSM ------------------------
-    -----------------------------------------------------
+-------------------------------------------------------------------------------------------
+------------------------------------ Command FSM ------------------------------------------
+-------------------------------------------------------------------------------------------
     CommandFSMState: process(reset, clk)
     begin    
          if(reset = '1') then
@@ -153,7 +154,8 @@ begin
         end if;        
     end process CommandFSMState;
     
-    
+------------------------ Outputs for Command SPI ----------------------------- 
+    -- output for SPI start
     SPIStart <= '1' when Moore_state_commandFSM = idle 
                       or Moore_state_commandFSM = doneStartup
                       or Moore_state_commandFSM = captureID_AD
@@ -163,27 +165,21 @@ begin
                       or Moore_state_commandFSM = captureZ
              else '0';
              
-             
+   -- output for toSPIbytes           
    with Moore_state_commandFSM select
    toSPIbytes <= x"0A2D02" when idle,
-                 --x"0B0000" when writeAddr2D,
-                 --x"0B0000" when doneStartup, 
-                 --x"0B0000" when readAddr00, 
                  x"0B0100" when captureID_AD,
-                 --x"0B0000" when readAddr01,
                  x"0B0800" when captureID_1D,
-                 --x"0B0000" when readAddr08,
+                 x"0B0800" when readAddr08,
                  x"0B0900" when captureX,
-                 --x"0B0000" when readAddr09,
+                 x"0B0900" when readAddr09,
                  x"0B0A00" when captureY,
-                 --x"0B0000" when readAddr0A,
-                 --x"0B0000" when captureZ,
+                 x"0B0A00" when readAddr0A,
                  x"0B0000" when others;
                          
- 
-    -----------------------------------------------------
-    -------------------- SPI FSM-------------------------
-    -----------------------------------------------------
+-------------------------------------------------------------------------------------------
+--------------------------------------- SPI FSM -------------------------------------------
+-------------------------------------------------------------------------------------------
     SpiFSMState: process(reset, clk)
     begin
         if(reset = '1') then
@@ -233,12 +229,16 @@ begin
             end case; 
         end if;                    
     end process SpiFSMState;
-    
+
+---------------------------- Outputs for SPI FSM ---------------------------    
+    -- output for CSb 
     CSb <= '1' when Moore_state_spiFSM = idle
                     or Moore_state_spiFSM = setCShi
                     or Moore_state_spiFSM = wait100ms
           else '0';
-    
+          
+    -- output for SCLK 
+    -- SCLK goes high in sclkHi state and otherwise goes low in others states
     SCLK <= '1' when Moore_state_spiFSM = sclkHi else '0';
           
     timerStart <= '1' when Moore_state_spiFSM = setCSlow
@@ -253,13 +253,14 @@ begin
     with Moore_state_spiFSM select
         timerMax <= to_unsigned(19,20) when setCSlow,
                     to_unsigned(49,20) when sclkHi, 
-                    to_unsigned(49,20) when sclkLo,
+                    to_unsigned(47,20) when sclkLo,
                     to_unsigned(100000,20) when wait100ms,
                     to_unsigned(0,20) when others;   
     
-   -----------------------------------------------------
-   --------------- Timer for FSM process ---------------          
-   -----------------------------------------------------
+-------------------------------------------------------------------------------------------
+--------------------------------- Timer for FSM proccess ----------------------------------
+-------------------------------------------------------------------------------------------
+
    timerForFSM: process(reset,clk)
    begin
         if(reset = '1') then
@@ -268,27 +269,20 @@ begin
             if(timerStart = '1') then
                 if(cntr < timerMax) then
                     cntr <= cntr + 1;
-                --elsif (cntr = timerMax) then
-                --    cntr <= (others => '0');
                 else
-                    --cntr <= cntr;
                     cntr <= (others => '0');
                 end if;
            else
-            --cntr <= cntr;
             cntr <= (others => '0');
           end if;
       end if;
  end process timerForFSM;
  timerDone <= '1' when cntr = timerMax else '0';
  
- -----------------------------------------------------
- --------------------- SCLK Counter ------------------
- -----------------------------------------------------
- --maxCounter1MHz <= "000000000000000000001100100";  -- binary value for 100 to make 1MHz pulse
- --pulse_1MHz: entity work.pulseGenerator port map ( clk => clk, reset => reset, maxCount => MaxCounter1MHz, pulseOut => Pulse1MHz);
- 
- sclkCounter: process (reset, clk)
+-------------------------------------------------------------------------------------------
+--------------------------------------- SCLK Counter --------------------------------------
+-------------------------------------------------------------------------------------------
+sclkCounter: process (reset, clk)
  begin
      if(reset = '1') then
           sclkCntr <= (others => '0');
@@ -304,10 +298,9 @@ begin
      end if;   
  end process sclkCounter;
 
- 
- -----------------------------------------------------
- --- Parallel-To-Serial -----
- -----------------------------------------------------
+-------------------------------------------------------------------------------------------
+------------------------------------ Parallel to Serial -----------------------------------
+-------------------------------------------------------------------------------------------
  parallelToSerial: process(reset,clk)
  begin
      if(reset = '1') then
@@ -325,9 +318,10 @@ begin
  end process parallelToSerial;
  MOSI <= sig24bitMosi(23);          -- the MSB of the 24-bit shift register becomes the MOSI output
  
- -----------------------------------------------------
- ---- Serial-To-Parallel ------
- -----------------------------------------------------
+ 
+-------------------------------------------------------------------------------------------
+------------------------------------ Serial to Parallel -----------------------------------
+-------------------------------------------------------------------------------------------
  serialToParallel: process(reset, clk)
  begin
      if(reset = '1') then
@@ -339,8 +333,7 @@ begin
         dataZ <= (others => '0');
       elsif(rising_edge(clk)) then
         if (Moore_state_spiFSM = checkSclkCntr and sclkCntr < 24 ) then --
-            sig24bitMiso <= sig24bitMiso (sig24bitMiso'left-1 downto 0) & MISO;  -- shift in the MISO signal into the LSB of the register when SPI FSM is in the checkSclkCntr
-            
+            sig24bitMiso <= sig24bitMiso (sig24bitMiso'left-1 downto 0) & MISO;  -- shift in the MISO signal into the LSB of the register when SPI FSM is in the checkSclkCntr            
         else
             sig24bitMiso <= sig24bitMiso;
         end if;

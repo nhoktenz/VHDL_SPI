@@ -1,5 +1,27 @@
 ----------------------------------------------------------------------------------
--- Thuong Nguyen
+-------------------------- Thuong Nguyen -----------------------------------------
+----------------------------------------------------------------------------------
+-- This project creates a green / blue 15 rows x 20 columns checkerboard 
+-- This project is the combination of the Accelerator and the button pressed on the Nexys 4 DDR 
+-- SW1 goes high will activate the accelerometer
+-- When the accelerometer is activated:
+------Tilt the board to the right, the red square moves to the right one
+------Tilt the board to the left, the red square moves to the left one
+------Tilt the boatd up, the red square moves up one
+------Tile the board down, the red square moves down one
+-- SW1 goes low, the button up/down/left/right will move the red square up/down/left/right one
+-- SW(4:3): 
+----- SW(4:3) of '00' shows the values of register 0x01 on 7-segment displays 6 and 7 and values of register 0x00 in display 4 and 5
+----- SW(4:3) of '01' shows the value of register 0x08 on display 4 and 5 and should have all zeros on display 6 and 7
+----- SW(4:3) of '10' shows the value of register 0x09 on display 4 and 5 and should have all zeros on display 6 and 7
+----- SW(4:3) of '11' shows the value of register 0x0A on display 4 and 5 and should have all zeros on display 6 and 7
+
+--- ** In addition: 
+----- SW(2) goes high show the DataX (register 0x08) on display 4 and 5 and DataY (register 0x09) on display 6 and 7
+---- LED 5 lit up when red square is at x = 0
+---- LED 6 lit up when red square is at xMax (d19)
+---- LED 7 lit up when red square is at y = 0
+---- LED 8 lit up when red square is at yMax (d14) 
 
 ----------------------------------------------------------------------------------
 
@@ -16,7 +38,7 @@ Port (
            CLK100MHZ : in STD_LOGIC;
            -- Switch 0 as active high reset
            SW: in STD_LOGIC_VECTOR(4 downto 0); 
-           LED: out STD_LOGIC_VECTOR(4 downto 0);
+           LED: out STD_LOGIC_VECTOR(8 downto 0);
            
            --Push Buttons
            BTNU : in STD_LOGIC;
@@ -36,10 +58,10 @@ Port (
            AN : out STD_LOGIC_VECTOR (7 downto 0);
            
            -- SPI 
-           ACL_MISO: in STD_LOGIC;
-           ACL_MOSI: out STD_LOGIC;
-           ACL_SCLK: out STD_LOGIC;
-           ACL_CSN: out STD_LOGIC
+           ACL_MISO: in STD_LOGIC; -- Master Input, Slave Output. SPI serial data output.
+           ACL_MOSI: out STD_LOGIC; -- Master Output, Slave Input. SPI serial data input.
+           ACL_SCLK: out STD_LOGIC; -- SPI Communications Clock
+           ACL_CSN: out STD_LOGIC  -- SPI Chip Select, Active Low. Must be low during SPI communications.
            );
 end lab5_top;
 
@@ -86,21 +108,14 @@ architecture Behavioral of lab5_top is
     signal btnRight_press_event: std_logic; 
 
 
-    --ACCEL SPI
-    signal DATA_X:  std_logic_vector(7 downto 0); 
-    signal DATA_Y :  std_logic_vector(7 downto 0); 
-    signal DATA_Z :  std_logic_vector(7 downto 0); 
-    signal ID_AD :  std_logic_vector(7 downto 0); 
-    signal ID_1D :  std_logic_vector(7 downto 0); 
+    --ACCEL SPI Data
+    signal DATA_X:  std_logic_vector(7 downto 0); --- 8-bit value from register address 0x08 of the accelerometer used to determine up/down movement of red square
+    signal DATA_Y :  std_logic_vector(7 downto 0); --- 8-bit value from register address 0x09 of the accelerometer used to determine left/right movement of red square
+    signal DATA_Z :  std_logic_vector(7 downto 0); --- 8-bit value from register address 0x0A of accelerometer not used for red square movement
+    signal ID_AD :  std_logic_vector(7 downto 0); --- 8-bit value, the result of reading from register address 0x00 of the accelerometer. This value should always read 0xAD (to know it's an Analog Devices device)
+    signal ID_1D :  std_logic_vector(7 downto 0); --- 8-bit value, the result of reading from register address 0x01 of the accelerometer. This value should always read 0x1D
 
-    constant xLevel: std_logic_vector(7 downto 0) := "11111100";   -- "0xFC is the level X
-    constant yLevel: std_logic_vector(7 downto 0) := "00000010";   -- "0x02 is the level X
-    constant rightTiltValue: std_logic_vector(7 downto 0) := "11111111"; -- 0xFF for the right tilt
-    constant leftTiltValue: std_logic_vector(7 downto 0) := "11111010"; -- 0xFA for the left tilt
-    constant downTiltValue: std_logic_vector(7 downto 0) := "11111111"; -- 0xFF for the down tilt
-    constant upTiltValue: std_logic_vector(7 downto 0) := "00000100"; -- 0x04 for the left tilt
-   
-    
+    -- ACCEL movements signals
     signal right_tilt_trigger: std_logic;
     signal left_tilt_trigger: std_logic;
     signal down_tilt_trigger: std_logic;
@@ -116,14 +131,15 @@ architecture Behavioral of lab5_top is
     signal down_tilt_event: std_logic;
     signal up_tilt_event: std_logic;
     
+    
 begin
  -- switch 0 is reset
    reset <= SW(0);     
    
  -- LED on when SW is on
-    LED <= SW;
-    
-     
+    LED(4 downto 0) <= SW;
+        
+
      ------------------------------------------------------------------------------------           
      ------------------------------------- VGA ------------------------------------------   
      ------------------------------------------------------------------------------------ 
@@ -251,23 +267,41 @@ begin
      
      btnRight_press_event <= '1' when btnRight_bd = '1' and btnRight_db_prev = '0' else '0';
      
-   
-    
---    process(CLK100MHZ, reset)
---     begin
---        if (reset = '1') then
---            right_tilt_trigger_prev <= '0';
---        elsif (rising_edge(CLK100MHZ)) then
---            right_tilt_trigger_prev <= right_tilt_trigger; 
---        end if;    
---     end process;
+     
+    -------------------------------------------------------------------------------------------------
+    ------------------------ Accelerator tilt up/down/left/right-------------------------------------
+    -------------------------------------------------------------------------------------------------
+    ---- I observed that DATA_Y is 0x02 at balance ----
+    --- when I tilt right, the first 4 MSB changes from 0 to B -->  E
+    --- when I tilt left, the first 4 MSB changes from 0 to 1 --> 4
+    right_tilt_trigger <= '1' when DATA_Y(7 downto 4) = "1110"  -- E
+                                    or DATA_Y(7 downto 4) = "1101" --D
+                                    or DATA_Y(7 downto 4) = "1100" --C
+                                    or DATA_Y(7 downto 4) = "1011" -- B
+                        else '0';
+    left_tilt_trigger <= '1' when DATA_Y(7 downto 4) = "0001"  -- 1
+                                    or DATA_Y(7 downto 4) = "0010" --2
+                                    or DATA_Y(7 downto 4) = "0011" --3
+                                    or DATA_Y(7 downto 4) = "0100" -- 4
+                          else '0';
+                                      
+                         
+    ---- I observed that DATA_X is 0xFC at balance ----
+    --- when I tilt up, the first 4 MSB changes from F to B -->  E
+    --- when I tilt down, the first 4 MSB changes from F to 1 --> 4
+    down_tilt_trigger <= '1' when DATA_X(7 downto 4) = "0001"  -- 1
+                                    or DATA_X(7 downto 4) = "0010" --2
+                                    or DATA_X(7 downto 4) = "0011" --3
+                                    or DATA_X(7 downto 4) = "0100" -- 4
+                          else '0';    
+    up_tilt_trigger <= '1' when DATA_X(7 downto 4) = "1110"  -- E
+                                    or DATA_X(7 downto 4) = "1101" --D
+                                    or DATA_X(7 downto 4) = "1100" --C
+                                    or DATA_X(7 downto 4) = "1011" -- B
+                        else '0';
 
 
-    right_tilt_trigger <= '1' when DATA_X = rightTiltValue else '0';
-    left_tilt_trigger <= '1' when DATA_X = leftTiltValue else '0';    
-    down_tilt_trigger <= '1' when DATA_Y = downTiltValue else '0';
-    up_tilt_trigger <= '1' when DATA_Y = upTiltValue else '0';
-    
+    --- Save the previous version of each tilt   
      process(CLK100MHZ, reset)
      begin
         if (reset = '1') then
@@ -282,11 +316,12 @@ begin
             up_tilt_trigger_prev <= up_tilt_trigger;
         end if;    
      end process;
-     
+    -- tilt event happens when the trigger value is different than the previous trigger value
     left_tilt_event <= left_tilt_trigger and not left_tilt_trigger_prev;
     right_tilt_event <= right_tilt_trigger and not right_tilt_trigger_prev;
     down_tilt_event <= down_tilt_trigger and not down_tilt_trigger_prev;
     up_tilt_event <= up_tilt_trigger and not up_tilt_trigger_prev;
+    
        
     -- Design a process for a 8-bits counter with an enable that counts everytime the enable goes high
     -- When buttons is press, it set the location for the red square
@@ -296,26 +331,27 @@ begin
         if(reset = '1') then                    -- verical count and horizontal count is set to 0 when reset switch is switch on
             hcnt <= (others => '0');
             vcnt <= (others => '0');
-         elsif(rising_edge(CLK100MHZ)) then
-            
+         elsif(rising_edge(CLK100MHZ)) then 
+            -- Up/ Down movemoment of the red square         
             if(vcnt >= VMax) then               -- set vertical counter to 0 when it reach the max value which is 15
                 vcnt <= (others => '0');
-             else
-                if(SW(1) = '0') then
-                
+            else
+                -- SW(1) goes low 
+                -- BUTTONS UP/ DOWN to control the movement of the red square to left/ right
+                if(SW(1) = '0') then               
                     if(btnUp_press_event = '1') then 
                         if(vcnt = "00000000") then      -- set the vertical counter to max value - 1 (because 0 is the first number) when its value is 0 and button up is pressed
                             vcnt <= VMax -1;
                         else
                             vcnt <= vcnt - 1;
-                        end if;
-                        
+                        end if;                       
                     elsif (btnDown_press_event = '1') then
                         vcnt <= vcnt + 1;
                     else
                         vcnt <= vcnt;
-                    end if;
-                
+                    end if;  
+               -- SW(1) goes high                 
+               -- ACCELERATOR move up/ down when the board is tilt up/ down
                else 
                     if(up_tilt_event = '1') then
                         if(vcnt = "00000000") then
@@ -328,14 +364,31 @@ begin
                     else
                         vcnt <= vcnt;
                     end if;  
-                 end if;
-                 
-             end if;
+                 end if;                
+            end if;
              
-             if(hcnt >= HMax) then       -- set horizontal counter to 0 when it reaches its max which is 20
+            -- Move left/ right of the red square
+            if(hcnt >= HMax) then       -- set horizontal counter to 0 when it reaches its max which is 20
                  hcnt <= (others => '0');
              else
-                if(SW(1)= '1') then
+                -- SW(1) goes low
+                -- BUTTON LEFT/RIGHT to control the movement of the red square left/ right
+                if(SW(1)= '0') then
+                     if (btnLeft_press_event = '1') then -- if button left is pressed and the horizontal counter reach to 0 then set horizontal counter to its max value -1 (because 0 is the first value)
+                        if(hcnt = "00000000") then
+                            hcnt <= HMax - 1;
+                        else
+                             hcnt <= hcnt - 1;
+                        end if;
+                       
+                     elsif (btnRight_press_event = '1') then
+                       hcnt <= hcnt + 1;
+                    else
+                        hcnt <= hcnt;
+                    end if;  
+                -- SW(1) goes high
+                -- ACCELERATOR moves left/ right               
+                else                 
                     if(left_tilt_event = '1') then
                         if(hcnt = "00000000") then
                             hcnt <= HMax - 1;
@@ -347,26 +400,21 @@ begin
                     else
                         hcnt <= hcnt;
                     end if;  
-                  
-                else
-                    if (btnLeft_press_event = '1') then -- if button left is pressed and the horizontal counter reach to 0 then set horizontal counter to its max value -1 (because 0 is the first value)
-                        if(hcnt = "00000000") then
-                            hcnt <= HMax - 1;
-                        else
-                             hcnt <= hcnt - 1;
-                        end if;
-                       
-                     elsif (btnRight_press_event = '1') then
-                       hcnt <= hcnt + 1;
-                    else
-                        hcnt <= hcnt;
-                    end if;
                 end if; 
              end if; 
          end if;  -- end if(reset = '1') then
-                                     
-        
+                                            
     end process btn_counter;
+    
+    
+    -- LED 5 lit up when red square is at x = 0
+    -- LED 6 lit up when red square is at xMax (d19)
+    -- LED 7 lit up when red square is at y = 0
+    -- LED 8 lit up when red square is at yMax (d14)
+    LED(5) <=  '1' when hcnt = x"00" else '0' ;
+    LED(6) <=  '1' when hcnt = x"13" else '0' ;
+    LED(7) <=  '1' when vcnt = x"00" else '0' ;
+    LED(8) <= '1' when vcnt = x"0E" else '0' ;
 
     ------------------------------------------------------------------------------------
     ------------------------------------- 7 SEGMENTS DISPLAY --------------------------
@@ -396,40 +444,48 @@ begin
     char1 <= std_logic_vector(vcnt(7 downto 4));
     char2 <= std_logic_vector(hcnt(3 downto 0));
     char3 <= std_logic_vector(hcnt(7 downto 4));
-    
-    -- SW(4:3) of '00' shows the values of register 0x01 in 7-segment displays 7 and 6 and values of register 0x00 in display 5 and 4
-    -- SW(4:3) of '01' shows the value of register 0x08 in display 5 and 4 and should have all zeros on display 6 and 7
-    -- SW(4:3) of '10' shows the value of register 0x09 in display 5 and 4 and should have all zeros on display 6 and 7
-    -- SW(4:3) of '11' shows the value of register 0x0A in display 5 and 5 and should have all zeros on display 6 and 7
-
-process(SW(4 downto 3),ID_AD, ID_1D,DATA_X, DATA_Y, DATA_Z)
-begin
-    if (SW(4) = '0' and SW(3) = '0') then
-        char4 <= ID_AD(3 downto 0); 
-        char5 <= ID_AD(7 downto 4); 
-        char6 <= ID_1D(3 downto 0);
-        char7 <= ID_1D(7 downto 4);
-    elsif (SW(4) = '0' and SW(3) = '1') then
-        char4 <= DATA_X(3 downto 0);
-        char5 <= DATA_X(7 downto 4);
-        char6 <= (others => '0');
-        char7 <= (others => '0');
-     elsif (SW(4) = '1' and SW(3) = '0') then
-        char4 <= DATA_Y(3 downto 0);
-        char5 <= DATA_Y(7 downto 4);
-        char6 <= (others => '0');
-        char7 <= (others => '0');
-    else
-        char4 <= DATA_Z(3 downto 0);
-        char5 <= DATA_Z(7 downto 4);
-        char6 <= (others => '0');
-        char7 <= (others => '0');
-    end if;
-end process;
-                          
-    
  
+    
+    -- SW(4:3) of '00' shows the values of register 0x01 on 7-segment displays 7 and 6 and values of register 0x00 on display 5 and 4
+    -- SW(4:3) of '01' shows the value of register 0x08 on display 5 and 4 and should have all zeros on display 6 and 7
+    -- SW(4:3) of '10' shows the value of register 0x09 on display 5 and 4 and should have all zeros on display 6 and 7
+    -- SW(4:3) of '11' shows the value of register 0x0A on display 5 and 5 and should have all zeros on display 6 and 7
 
+    --- I just want to see DATA_X and DATA_Y values movement at the sametime
+        -- SW(2) goes high when SW(4:3) goes low shows the DATA_X and DATA_Y at the seg-7 
+        -- char4 and char5 shows the value of DATA_X
+        -- char6 and char7 shows the value of DATA_Y                      
+    
+    process(SW(4), SW(3), SW(2),ID_AD, ID_1D,DATA_X, DATA_Y, DATA_Z)
+    begin
+        if (SW(4) = '0' and SW(3) = '0' and SW(2) = '0') then
+            char4 <= ID_AD(3 downto 0); 
+            char5 <= ID_AD(7 downto 4); 
+            char6 <= ID_1D(3 downto 0);
+            char7 <= ID_1D(7 downto 4);
+        elsif ((SW(4) = '0' and SW(3) = '1'  and SW(2) = '0') or (SW(4) = '0' and SW(3) = '1'  and SW(2) = '1')) then
+            char4 <= DATA_X(3 downto 0);
+            char5 <= DATA_X(7 downto 4);
+            char6 <= (others => '0');
+            char7 <= (others => '0');
+         elsif ((SW(4) = '1' and SW(3) = '0'  and SW(2) = '0') or (SW(4) = '1' and SW(3) = '0'  and SW(2) = '1')) then
+            char4 <= DATA_Y(3 downto 0);
+            char5 <= DATA_Y(7 downto 4);
+            char6 <= (others => '0');
+            char7 <= (others => '0');                 
+        elsif (SW(4) = '0' and SW(3) = '0' and SW(2) = '1') then
+            char4 <= DATA_Y(3 downto 0);
+            char5 <= DATA_Y(7 downto 4);
+            char6 <= DATA_X(3 downto 0);
+            char7 <= DATA_X(7 downto 4);
+        else
+            char4 <= DATA_Z(3 downto 0);
+            char5 <= DATA_Z(7 downto 4);
+            char6 <= (others => '0');
+            char7 <= (others => '0');
+        end if;
+    end process;
     
 
+  
 end Behavioral;

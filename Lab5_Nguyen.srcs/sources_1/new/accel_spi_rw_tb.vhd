@@ -1,6 +1,6 @@
 ----------------------------------------------------------------------------------
 -- 
--- Accelerometer Testbench to verify Accel Controller for Lab 5
+-- Accelerometer Testbench to verify Accel Controller for this project
 --
 ----------------------------------------------------------------------------------
 
@@ -51,6 +51,16 @@ begin
 		assert  ACL_SCLK = '0'
         report "Error: Reset condition should have ACL_SCLK = '0'"
         severity failure;
+        
+		
+		assert  ACL_CSN = '1'
+		report "Error: Reset condition should have ACL_CSN = '1'"
+		severity failure;
+		
+		wait for 25 ns;
+		assert  acl_enabled = '0'
+		report "Error: ACL should be high after initiate writing"
+		severity failure;
 		
 		wait for 100 ns;
 		reset <= '0';

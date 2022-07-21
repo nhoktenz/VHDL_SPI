@@ -10,13 +10,13 @@
       </db_ref>
    </db_ref_list>
    <zoom_setting>
-      <ZoomStartTime time="31,344,716.666 ns"></ZoomStartTime>
-      <ZoomEndTime time="31,345,968.667 ns"></ZoomEndTime>
-      <Cursor1Time time="31,345,760.000 ns"></Cursor1Time>
+      <ZoomStartTime time="19.445000 us"></ZoomStartTime>
+      <ZoomEndTime time="29.385001 us"></ZoomEndTime>
+      <Cursor1Time time="24.295000 us"></Cursor1Time>
    </zoom_setting>
    <column_width_setting>
       <NameColumnWidth column_width="219"></NameColumnWidth>
-      <ValueColumnWidth column_width="105"></ValueColumnWidth>
+      <ValueColumnWidth column_width="95"></ValueColumnWidth>
    </column_width_setting>
    <WVObjectSize size="54" />
    <wvobject fp_name="/accel_spi_rw_tb/reset" type="logic">
@@ -63,10 +63,6 @@
       <obj_property name="ElementShortName">DATA_Z[7:0]</obj_property>
       <obj_property name="ObjectShortName">DATA_Z[7:0]</obj_property>
    </wvobject>
-   <wvobject fp_name="/accel_spi_rw_tb/ACL_DUMMY/acl_enabled" type="logic">
-      <obj_property name="ElementShortName">acl_enabled</obj_property>
-      <obj_property name="ObjectShortName">acl_enabled</obj_property>
-   </wvobject>
    <wvobject fp_name="/accel_spi_rw_tb/ACL_DUMMY/rd_D" type="logic">
       <obj_property name="ElementShortName">rd_D</obj_property>
       <obj_property name="ObjectShortName">rd_D</obj_property>
@@ -86,10 +82,6 @@
    <wvobject fp_name="/accel_spi_rw_tb/ACL_DUMMY/addr_D" type="array">
       <obj_property name="ElementShortName">addr_D[7:0]</obj_property>
       <obj_property name="ObjectShortName">addr_D[7:0]</obj_property>
-   </wvobject>
-   <wvobject fp_name="/accel_spi_rw_tb/ACEL_DUT/CSb" type="logic">
-      <obj_property name="ElementShortName">CSb</obj_property>
-      <obj_property name="ObjectShortName">CSb</obj_property>
    </wvobject>
    <wvobject fp_name="/accel_spi_rw_tb/ACL_DUMMY/reg_out_Q" type="array">
       <obj_property name="ElementShortName">reg_out_Q[7:0]</obj_property>
@@ -163,6 +155,10 @@
       <obj_property name="ElementShortName">sig24bitMiso[23:0]</obj_property>
       <obj_property name="ObjectShortName">sig24bitMiso[23:0]</obj_property>
    </wvobject>
+   <wvobject fp_name="/accel_spi_rw_tb/ACL_DUMMY/acl_enabled" type="logic">
+      <obj_property name="ElementShortName">acl_enabled</obj_property>
+      <obj_property name="ObjectShortName">acl_enabled</obj_property>
+   </wvobject>
    <wvobject fp_name="/accel_spi_rw_tb/ACEL_DUT/Moore_state_commandFSM" type="other">
       <obj_property name="ElementShortName">Moore_state_commandFSM</obj_property>
       <obj_property name="ObjectShortName">Moore_state_commandFSM</obj_property>
@@ -222,6 +218,10 @@
    <wvobject fp_name="/accel_spi_rw_tb/clk" type="logic">
       <obj_property name="ElementShortName">clk</obj_property>
       <obj_property name="ObjectShortName">clk</obj_property>
+   </wvobject>
+   <wvobject fp_name="/accel_spi_rw_tb/ACEL_DUT/CSb" type="logic">
+      <obj_property name="ElementShortName">CSb</obj_property>
+      <obj_property name="ObjectShortName">CSb</obj_property>
    </wvobject>
    <wvobject fp_name="/accel_spi_rw_tb/ACEL_DUT/CSb" type="logic">
       <obj_property name="ElementShortName">CSb</obj_property>
