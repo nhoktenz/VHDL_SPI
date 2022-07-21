@@ -38,7 +38,7 @@ Port (
            CLK100MHZ : in STD_LOGIC;
            -- Switch 0 as active high reset
            SW: in STD_LOGIC_VECTOR(4 downto 0); 
-           LED: out STD_LOGIC_VECTOR(10 downto 0);
+           LED: out STD_LOGIC_VECTOR(8 downto 0);
            
            --Push Buttons
            BTNU : in STD_LOGIC;
@@ -130,11 +130,7 @@ architecture Behavioral of lab5_top is
     signal right_tilt_event: std_logic;
     signal down_tilt_event: std_logic;
     signal up_tilt_event: std_logic;
-    
-    
-   
-    signal clk_counter : natural range 0 to 50000000 := 0;
-	signal blinker : std_logic := '0';
+
     
 begin
  -- switch 0 is reset
@@ -419,21 +415,7 @@ begin
     LED(8) <=  '1' when hcnt = x"13" else '0' ;
     LED(5) <=  '1' when vcnt = x"00" else '0' ;
     LED(6) <= '1' when vcnt = x"0E" else '0' ;
-     
-    process (reset, CLK100MHZ)
-    begin
-        if(reset = '1') then                    
-            clk_counter <= 0;
-         elsif(rising_edge(CLK100MHZ)) then 
-            clk_counter <= clk_counter + 1; 
-			if clk_counter >= 50000000 then 
-			  blinker <= not blinker;
-			  clk_counter <= 0;
-			end if;
-         end if;
-    end process;
-    LED(9) <= blinker;
-    
+       
 
     ------------------------------------------------------------------------------------
     ------------------------------------- 7 SEGMENTS DISPLAY --------------------------

@@ -39,7 +39,7 @@ end seg7_controller;
 architecture Behavioral of seg7_controller is
      signal cntr3bit: unsigned (2 downto 0);                        -- counter from 0 to 8 every pulse to generate anodes and cathodes
      signal char: std_logic_vector (3 downto 0);                    -- cathodes output
-     signal MaxCounter1 : unsigned(26 downto 0);                    -- maxium counter to match to the MaxCount from pulseGenerator
+     constant MaxCounter1 : unsigned(26 downto 0) := to_unsigned(100000,27);  -- 100 000 to generate 1kHz pulse (100M / 100k = 1k)
      signal Pulse1KHz : std_logic;                                  -- pulse out every 1kHz
 begin
     -- import pulse Generator from the other file 
@@ -52,7 +52,6 @@ begin
         pulseOut => Pulse1KHz
     );
     
-    MaxCounter1 <= "000000000011000011010100000"; -- binary value for 100 000 to generate 1kHZ pulse
     --Generate 1kHZ pulse.
         kHZclock: process(clk, reset)
             begin
